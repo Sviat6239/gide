@@ -22,7 +22,6 @@ function syncScroll() {
       <div class="line-number" v-for="n in lineCount" :key="n">{{ n }}</div>
     </div>
     <textarea ref="editorRef" class="editor" v-model="text" @scroll="syncScroll"></textarea>
-
   </div>
 
 </template>

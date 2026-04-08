@@ -2,23 +2,26 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 16px;
+  width: fit-content;
+  border: 1px solid black;
+  border-radius: 10px;
+  margin: auto;
+  overflow: hidden;
+  gap: 1px;
 }
 
 .line-count {
   width: 75px;
-  height: 600px;
+  height: 560px;
   overflow: hidden;
-  border: 1px solid #3a4253;
-  border-radius: 8px;
-  background-color: var(--app-bg-color);
+  background-color: black;
   color: var(--app-text-color);
   font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
   font-size: 14px;
   line-height: 1.5;
-  padding: 12px 8px;
+  padding: 4px 8px;
   box-sizing: border-box;
-  text-align: right;
+  text-align: left;
   user-select: none;
 }
 
@@ -28,19 +31,26 @@
 
 .editor {
   width: 1000px;
-  height: 600px;
+  height: 560px;
   resize: none;
   overflow-x: auto;
   overflow-y: auto;
   white-space: pre;
   overflow-wrap: normal;
   word-break: normal;
-  background-color: var(--app-bg-color);
+  background-color: black;
   color: var(--app-text-color);
-  border-radius: 8px;
+  border: none;
+  border-radius: 0;
   font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
   font-size: 14px;
   line-height: 1.5;
-  padding: 12px;
+  padding: 4px;
   box-sizing: border-box;
 }
+
+.editor:focus {
+  outline: none;
+  box-shadow: none;
+}
+
