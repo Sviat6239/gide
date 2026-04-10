@@ -1,32 +1,69 @@
 .code-area {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
   width: fit-content;
   border: 1px solid black;
   border-radius: 10px;
   margin: auto;
   overflow: hidden;
-  gap: 1px;
+  background-color: var(--app-bg-color);
+}
+
+.file-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: var(--app-bg-color);
+  border-bottom: 1px solid #3a4253;
+  flex-wrap: wrap;
+}
+
+#file {
+  border: 1px solid #3a4253;
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  background-color: #2a2a2a;
+  color: var(--app-text-color);
+  transition: background-color 0.2s;
+}
+
+#file:hover {
+  background-color: #3a3a3a;
+}
+
+#file p {
+  margin: 0;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.editor-container {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  gap: 0;
 }
 
 .line-count {
   width: 75px;
-  height: 560px;
+  max-height: 560px;
   overflow: hidden;
-  background-color: black;
+  background-color: var(--app-bg-color);
   color: var(--app-text-color);
   font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
   font-size: 14px;
   line-height: 1.5;
   padding: 4px 8px;
   box-sizing: border-box;
-  text-align: left;
+  text-align: right;
   user-select: none;
+  border-right: 1px solid #3a4253;
 }
 
 .line-number {
   height: 21px;
+  color: #666;
 }
 
 .editor {
@@ -38,19 +75,28 @@
   white-space: pre;
   overflow-wrap: normal;
   word-break: normal;
-  background-color: black;
+  background-color: var(--app-bg-color);
   color: var(--app-text-color);
   border: none;
   border-radius: 0;
   font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   padding: 4px;
   box-sizing: border-box;
+  outline: none;
+  box-shadow: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .editor:focus {
   outline: none;
   box-shadow: none;
+}
+
+.editor::selection {
+  background-color: transparent;
+  color: var(--app-text-color);
 }
 

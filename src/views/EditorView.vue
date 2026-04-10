@@ -13,5 +13,11 @@ import TerminalComponent from "../components/TerminalComponent.vue";
 </template>
 
 <style scoped>
+.editor-view {
+  margin-bottom: 8px;
+}
 
+.terminal-view {
+  margin-top: 8px;
+}
 </style>
