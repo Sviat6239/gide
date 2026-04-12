@@ -47,12 +47,12 @@
 
 .line-count {
   width: 75px;
-  max-height: 560px;
+  height: 560px;
   overflow: hidden;
-  background-color: var(--app-bg-color);
+  background-color: black;
   color: var(--app-text-color);
   font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   padding: 4px 8px;
   box-sizing: border-box;
@@ -62,12 +62,12 @@
 }
 
 .line-number {
-  height: 21px;
-  color: #666;
+  line-height: inherit;
+  color: #667;
 }
 
 .editor {
-  width: 1000px;
+  width: 975px;
   height: 560px;
   resize: none;
   overflow-x: auto;
@@ -75,7 +75,7 @@
   white-space: pre;
   overflow-wrap: normal;
   word-break: normal;
-  background-color: var(--app-bg-color);
+  background-color: black;
   color: var(--app-text-color);
   border: none;
   border-radius: 0;

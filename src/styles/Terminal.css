@@ -45,14 +45,14 @@
 
 .terminal-textarea {
   width: 1050px;
-  max-height: 250px;
+  height: 250px;
   resize: none;
   overflow-x: auto;
   overflow-y: auto;
   white-space: pre;
   overflow-wrap: normal;
   word-break: normal;
-  background-color: var(--app-bg-color);
+  background-color: black;
   color: var(--app-text-color);
   border: none;
   border-radius: 0;
