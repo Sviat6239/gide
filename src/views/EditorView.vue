@@ -65,10 +65,26 @@ function createTab({ baseName, extension = '', content = '' }) {
 }
 
 function handleCreateFile(payload) {
+  const rawName = (payload.baseName ?? payload.name ?? '').trim();
+
+  if (!rawName) {
+    return;
+  }
+
+  if (payload.extension) {
+    createTab({
+      baseName: rawName,
+      extension: payload.extension,
+      content: payload.content ?? '',
+    });
+    return;
+  }
+
+  const parts = splitFileName(rawName);
   createTab({
-    baseName: payload.name,
-    extension: payload.extension,
-    content: '',
+    baseName: parts.name || rawName,
+    extension: parts.extension,
+    content: payload.content ?? '',
   });
 }
 
