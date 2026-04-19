@@ -1,0 +1,110 @@
+.dropdown{
+    position: relative;
+    display: inline-block;
+    z-index: 200;
+}
+
+.dropdown-toggle {
+    height: 28px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #d5d7da;
+    padding: 0 10px;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.dropdown-toggle:hover {
+    background: #3a3f45;
+    color: #ffffff;
+}
+
+.dropdown-toggle:focus-visible {
+    outline: none;
+    border-color: #4d8dff;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 180px;
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
+    background: #2b2d30;
+    border: 1px solid #43454a;
+    border-radius: 6px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    z-index: 9999;
+}
+
+.dropdown-menu li {
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-menu button {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: #d5d7da;
+    text-align: left;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.dropdown-menu button:hover {
+    background: #365880;
+    color: #ffffff;
+}
+
+.has-submenu {
+    position: relative;
+}
+
+.has-submenu > button::after {
+    content: "\203A";
+    float: right;
+    color: #9da0a6;
+}
+
+.dropdown-submenu {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 4px);
+    min-width: 190px;
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
+    background: #2b2d30;
+    border: 1px solid #43454a;
+    border-radius: 6px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    z-index: 10000;
+}
+
+.dropdown-submenu li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dropdown-submenu button {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: #d5d7da;
+    text-align: left;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.dropdown-submenu button:hover {
+    background: #365880;
+    color: #ffffff;
+}

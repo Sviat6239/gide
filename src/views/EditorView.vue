@@ -22,11 +22,16 @@ import HeaderComponent from "../components/HeaderComponent.vue";
 </template>
 
 <style scoped>
+.header {
+  position: relative;
+  z-index: 100;
+}
+
 .editor-view {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .terminal-view {
-  margin-top: 8px;
+  margin-top: 4px;
 }
 </style>

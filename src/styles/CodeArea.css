@@ -47,7 +47,7 @@
 
 .line-count {
   width: 75px;
-  height: 560px;
+  height: 550px;
   overflow: hidden;
   background-color: black;
   color: var(--app-text-color);
@@ -68,7 +68,7 @@
 
 .editor {
   width: 975px;
-  height: 560px;
+  height: 550px;
   resize: none;
   overflow-x: auto;
   overflow-y: auto;
