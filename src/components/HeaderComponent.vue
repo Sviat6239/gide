@@ -2,96 +2,111 @@
 import { ref } from 'vue';
 import '../styles/Header.css';
 
+const emit = defineEmits(['create-file', 'import-files']);
+
 const isOpen = ref(false);
 const isSubOpen = ref(false);
+const isCreateModalOpen = ref(false);
 
 const fileInput = ref(null);
 const folderInput = ref(null);
+const fileName = ref('');
+const selectedExtension = ref('.txt');
+
+const extensionOptions = [
+  '.txt',
+  '.rs',
+  '.py',
+  '.html',
+  '.css',
+  '.js',
+  '.ts',
+  '.gamma',
+  '.c',
+  '.cpp',
+  '.h',
+  '.hpp',
+  '.md',
+  '.asm',
+];
 
 function toggle() {
   isOpen.value = !isOpen.value;
 }
 
-function toggleSub(){
-  isSubOpen.value = !isSubOpen.value;
-}
-
 function openFile() {
   fileInput.value.click();
+  isOpen.value = false;
 }
 
 function openFolder() {
   folderInput.value.click();
+  isOpen.value = false;
 }
 
-function createEmptyFile(){
-  alert("You have been created new empty file");
+function openCreateModal(extension = '.txt') {
+  selectedExtension.value = extension;
+  fileName.value = '';
+  isCreateModalOpen.value = true;
+  isOpen.value = false;
+  isSubOpen.value = false;
 }
 
-function createRustFile(){
-  alert("You have been created new Rust file");
+function closeCreateModal() {
+  isCreateModalOpen.value = false;
 }
 
-function createPythonFile(){
-  alert("You have been created new Python file");
+function submitCreateFile() {
+  const normalizedName = fileName.value.trim();
+
+  if (!normalizedName) {
+    return;
+  }
+
+  emit('create-file', {
+    name: normalizedName,
+    extension: selectedExtension.value,
+  });
+
+  closeCreateModal();
 }
 
-function createHtmlFile(){
-  alert("You have been created new HTML file");
-}
-
-function createCssFile(){
-  alert("You have been created new CSS file");
-}
-
-function createJsFile(){
-  alert("You have been created new JavaScript file");
-}
-
-function createTsFile(){
-  alert("You have been created new TypeScript file");
-}
-
-function createGammaFile(){
-  alert("You have been created new Gamma file");
-}
-
-function createCFile(){
-  alert("You have been created new C file");
-}
-
-function createCppFile(){
-  alert("You have been created new C++ file");
-}
-
-function createHeaderFile(){
-  alert("You have been created new header file");
-}
-
-function createMarkdownFile(){
-  alert("You have been created new Markdown file");
-}
-
-function createFasmFile(){
-  alert("You have been created new Fasm file");
-}
-
-function createRasmFile(){
-  alert("you have been created new Rasm file");
-}
-
-function createFolder(){
-  alert("You have been created new folder")
-}
-
-function handleFile(event) {
+async function handleFile(event) {
   const files = event.target.files;
-  console.log(files);
+
+  if (!files?.length) {
+    return;
+  }
+
+  const importedFiles = await Promise.all(
+    Array.from(files).map(async (file) => ({
+      fullName: file.name,
+      content: await file.text(),
+    })),
+  );
+
+  emit('import-files', importedFiles);
+  event.target.value = '';
 }
 
-function handleFolder(event) {
+async function handleFolder(event) {
   const files = event.target.files;
-  console.log(files);
+
+  if (!files?.length) {
+    return;
+  }
+
+  const importedFiles = await Promise.all(
+    Array.from(files)
+      .filter((file) => file.type.startsWith('text/') || !file.type)
+      .map(async (file) => ({
+        fullName: file.webkitRelativePath || file.name,
+        content: await file.text(),
+      })),
+  );
+
+  emit('import-files', importedFiles);
+  event.target.value = '';
 }
 </script>
 
@@ -111,28 +126,53 @@ function handleFolder(event) {
         <button type="button">New</button>
 
         <ul v-if="isSubOpen" class="dropdown-submenu">
-          <li><button @click="createEmptyFile()">File</button></li>
-          <li><button @click="createRustFile()">Rust File</button></li>
-          <li><button @click="createPythonFile()">Python File</button></li>
-          <li><button @click="createHtmlFile()">HTML File</button></li>
-          <li><button @click="createCssFile()">CSS File</button></li>
-          <li><button @click="createJsFile()">JavaScript File</button></li>
-          <li><button @click="createTsFile()">TypeScript File</button></li>
-          <li><button @click="createGammaFile()">Gamma File</button></li>
-          <li><button @click="createCFile()">C File</button></li>
-          <li><button @click="createCppFile()">C++ File</button></li>
-          <li><button @click="createHeaderFile()">Header File</button></li>
-          <li><button @click="createMarkdownFile()">Markdown File</button></li>
-          <li><button @click="createFasmFile()">Fasm File</button></li>
-          <li><button @click="createRasmFile()">Rasm File</button></li>
-          <li><button @click="createFolder">Folder</button></li>
+          <li><button @click="openCreateModal('.txt')">File</button></li>
+          <li><button @click="openCreateModal('.rs')">Rust File</button></li>
+          <li><button @click="openCreateModal('.py')">Python File</button></li>
+          <li><button @click="openCreateModal('.html')">HTML File</button></li>
+          <li><button @click="openCreateModal('.css')">CSS File</button></li>
+          <li><button @click="openCreateModal('.js')">JavaScript File</button></li>
+          <li><button @click="openCreateModal('.ts')">TypeScript File</button></li>
+          <li><button @click="openCreateModal('.gamma')">Gamma File</button></li>
+          <li><button @click="openCreateModal('.c')">C File</button></li>
+          <li><button @click="openCreateModal('.cpp')">C++ File</button></li>
+          <li><button @click="openCreateModal('.h')">Header File</button></li>
+          <li><button @click="openCreateModal('.md')">Markdown File</button></li>
+          <li><button @click="openCreateModal('.asm')">Asm File</button></li>
         </ul>
       </li>
     </ul>
 
+    <div v-if="isCreateModalOpen" class="modal-overlay" @click.self="closeCreateModal">
+      <div class="create-modal">
+        <h3>Create New File</h3>
+        <label for="file-name">File name</label>
+        <input
+            id="file-name"
+            v-model="fileName"
+            type="text"
+            placeholder="main"
+            @keydown.enter.prevent="submitCreateFile"
+        />
+
+        <label for="file-extension">Type</label>
+        <select id="file-extension" v-model="selectedExtension">
+          <option v-for="extension in extensionOptions" :key="extension" :value="extension">
+            {{ extension }}
+          </option>
+        </select>
+
+        <div class="modal-actions">
+          <button type="button" class="ghost-button" @click="closeCreateModal">Cancel</button>
+          <button type="button" class="primary-button" @click="submitCreateFile">Create</button>
+        </div>
+      </div>
+    </div>
+
     <input
         type="file"
         ref="fileInput"
+        multiple
         style="display:none"
         @change="handleFile"
     />

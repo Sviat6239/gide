@@ -18,7 +18,10 @@
   flex-wrap: wrap;
 }
 
-#file {
+.file-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   border: 1px solid #3a4253;
   border-radius: 8px;
   padding: 4px 8px;
@@ -28,14 +31,42 @@
   transition: background-color 0.2s;
 }
 
-#file:hover {
+.file-tab:hover {
   background-color: #3a3a3a;
 }
 
-#file p {
+.file-tab.active {
+  background-color: #365880;
+  border-color: #4d8dff;
+}
+
+.file-tab p {
   margin: 0;
   font-size: 12px;
   white-space: nowrap;
+}
+
+.close-tab {
+  border: 0;
+  background: transparent;
+  color: #c6cad0;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.close-tab:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.empty-tabs {
+  margin: 0;
+  color: #9199a6;
+  font-size: 12px;
 }
 
 .editor-container {
