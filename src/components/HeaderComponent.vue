@@ -24,36 +24,60 @@ function openFolder() {
   folderInput.value.click();
 }
 
-function createNew(){
-
-}
-
 function createEmptyFile(){
-  alert("You have been created new empty file")
+  alert("You have been created new empty file");
 }
 
 function createRustFile(){
-  alert("You have been created new Rust file")
+  alert("You have been created new Rust file");
 }
 
 function createPythonFile(){
-  alert("You have been created new Python file")
+  alert("You have been created new Python file");
 }
 
 function createHtmlFile(){
-  alert("You have been created new HTML file")
+  alert("You have been created new HTML file");
 }
 
 function createCssFile(){
-  alert("You have been created new CSS file")
+  alert("You have been created new CSS file");
 }
 
 function createJsFile(){
-  alert("You have been created new JavaScript file")
+  alert("You have been created new JavaScript file");
 }
 
 function createTsFile(){
-  alert("You have been created new TypeScript file")
+  alert("You have been created new TypeScript file");
+}
+
+function createGammaFile(){
+  alert("You have been created new Gamma file");
+}
+
+function createCFile(){
+  alert("You have been created new C file");
+}
+
+function createCppFile(){
+  alert("You have been created new C++ file");
+}
+
+function createHeaderFile(){
+  alert("You have been created new header file");
+}
+
+function createMarkdownFile(){
+  alert("You have been created new Markdown file");
+}
+
+function createFasmFile(){
+  alert("You have been created new Fasm file");
+}
+
+function createRasmFile(){
+  alert("you have been created new Rasm file");
 }
 
 function createFolder(){
@@ -84,7 +108,7 @@ function handleFolder(event) {
           @mouseenter="isSubOpen = true"
           @mouseleave="isSubOpen = false"
       >
-        <button type="button" @click="createNew()">New</button>
+        <button type="button">New</button>
 
         <ul v-if="isSubOpen" class="dropdown-submenu">
           <li><button @click="createEmptyFile()">File</button></li>
@@ -94,6 +118,13 @@ function handleFolder(event) {
           <li><button @click="createCssFile()">CSS File</button></li>
           <li><button @click="createJsFile()">JavaScript File</button></li>
           <li><button @click="createTsFile()">TypeScript File</button></li>
+          <li><button @click="createGammaFile()">Gamma File</button></li>
+          <li><button @click="createCFile()">C File</button></li>
+          <li><button @click="createCppFile()">C++ File</button></li>
+          <li><button @click="createHeaderFile()">Header File</button></li>
+          <li><button @click="createMarkdownFile()">Markdown File</button></li>
+          <li><button @click="createFasmFile()">Fasm File</button></li>
+          <li><button @click="createRasmFile()">Rasm File</button></li>
           <li><button @click="createFolder">Folder</button></li>
         </ul>
       </li>
