@@ -11,6 +11,10 @@ const isCreateModalOpen = ref(false);
 const fileInput = ref(null);
 const folderInput = ref(null);
 const fileName = ref('');
+const folderInputAttrs = {
+  webkitdirectory: true,
+  directory: true,
+};
 
 const selectedExtension = ref('.txt');
 const selectedVariant = ref(null);
@@ -20,6 +24,29 @@ const currentExtensions = ref([]);
 const currentVariants = ref([]);
 
 const fileTemplates = {
+  txt: {
+    allowSeparateType: false,
+    variants: {
+      plain: {
+        label: 'Plain text',
+        extensions: ['.txt'],
+        template: '',
+      },
+    },
+  },
+  md: {
+    allowSeparateType: false,
+    variants: {
+      article: {
+        label: 'Markdown',
+        extensions: ['.md'],
+        template: `# Title
+
+Write your text here.
+`,
+      },
+    },
+  },
   rust: {
     allowSeparateType: false,
     variants: {
@@ -28,7 +55,7 @@ const fileTemplates = {
         extensions: ['.rs'],
         template:
             `fn main() {
-    println!("Hello Rust");
+    println!("Hello, Rust!");
 }
 `,
       },
@@ -36,82 +63,217 @@ const fileTemplates = {
   },
   python: {
     allowSeparateType: false,
-    variants:{
-      file:{
+    variants: {
+      file: {
         label: 'Python File',
         extensions: ['.py'],
-        template:
-            `print("Hello, Python!")`,
+        template: `def main():
+    print("Hello, Python!")
+
+
+if __name__ == "__main__":
+    main()
+`,
       },
-      unitTest:{
+      unitTest: {
         label: 'Python unit test',
         extensions: ['.py'],
-        template: ``,
-      }
-      }
+        template: `import unittest
+
+
+class TestExample(unittest.TestCase):
+    def test_something(self):
+        self.assertTrue(True)
+
+
+if __name__ == "__main__":
+    unittest.main()
+`,
+      },
+    },
   },
-  lua: {},
-  gamma: {},
-  html: {},
-  css: {},
-  js: {},
-  jsx: {},
-  ts: {},
-  tsx: {},
-  vue: {},
+  lua: {
+    allowSeparateType: false,
+    variants: {
+      script: {
+        label: 'Lua script',
+        extensions: ['.lua'],
+        template: `print("Hello, Lua!")
+`,
+      },
+    },
+  },
+  gamma: {
+    allowSeparateType: true,
+    variants: {
+      script: {
+        label: 'Gamma script',
+        extensions: ['.gamma', '.gma', '.gm'],
+        template: `# Gamma file
+`,
+      },
+    },
+  },
+  html: {
+    allowSeparateType: false,
+    variants: {
+      page: {
+        label: 'HTML page',
+        extensions: ['.html'],
+        template: `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
+<body>
+
+</body>
+</html>
+`,
+      },
+    },
+  },
+  css: {
+    allowSeparateType: false,
+    variants: {
+      stylesheet: {
+        label: 'CSS stylesheet',
+        extensions: ['.css'],
+        template: `:root {
+  --primary: #4f46e5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+`,
+      },
+    },
+  },
+  js: {
+    allowSeparateType: false,
+    variants: {
+      script: {
+        label: 'JavaScript',
+        extensions: ['.js', '.jsx'],
+        template: `console.log("Hello, JavaScript!");
+`,
+      },
+      component: {
+        label: 'React JSX',
+        extensions: ['.jsx'],
+        template: `export default function App() {
+  return <div>Hello, React</div>;
+}
+`,
+    },
+  },
+  },
+  ts: {
+    allowSeparateType: false,
+    variants: {
+      script: {
+        label: 'TypeScript',
+        extensions: ['.ts', '.tsx'],
+        template: `const message: string = "Hello, TypeScript!";
+console.log(message);
+`,
+      },
+
+      component: {
+        label: 'React TSX',
+        extensions: ['.tsx'],
+        template: `export default function App(): JSX.Element {
+  return <div>Hello, TypeScript React</div>;
+}
+`,
+      },
+    },
+  },
+  vue: {
+    allowSeparateType: false,
+    variants: {
+
+    },
+  },
   ccpp: {
     allowSeparateType: false,
-    variants:{
+    variants: {
       c: {
         label: 'C File',
         extensions: ['.c'],
-        template: ``,
+        template: `#include <stdio.h>
+
+int main(void) {
+    printf("Hello, C!\\n");
+    return 0;
+}
+`,
       },
 
       cpp: {
         label: 'C++ File',
         extensions: ['.cpp'],
-        template: ``,
+        template: `#include <iostream>
+
+int main() {
+    std::cout << "Hello, C++!" << std::endl;
+    return 0;
+}
+`,
       },
 
       h: {
-        label: 'H File',
+        label: 'C Header',
         extensions: ['.h'],
-        template: ``,
+        template: `#pragma once
+`,
       },
 
       hpp: {
-        label: 'H++ File',
+        label: 'C++ Header',
         extensions: ['.hpp'],
-        template: ``,
+        template: `#pragma once
+`,
       },
     }
   },
   asm: {
     allowSeparateType: true,
-    variants:{
-      nasm:{
+    variants: {
+      nasm: {
         label: 'NASM',
-        template: `;nasm`,
+        template: `; NASM template
+`,
       },
 
-      fasm:{
+      fasm: {
         label: 'FASM',
-        template: `;fasm`,
+        template: `; FASM template
+`,
       },
 
-      tasm:{
+      tasm: {
         label: 'TASM',
-        template: `;tasm`,
+        template: `; TASM template
+`,
       },
 
-      rasm:{
+      rasm: {
         label: 'RASM',
-        template: `;rasm`,
+        template: `; RASM template
+`,
       },
     }
   },
-}
+};
 
 const fileTypes = {
   txt: {
@@ -142,7 +304,7 @@ const fileTypes = {
     label: 'HTML File',
     extensions: ['.html', '.htm'],
   },
-  css:{
+  css: {
     label: 'CSS File',
     extensions: ['.css'],
   },
@@ -154,6 +316,10 @@ const fileTypes = {
     label: 'TypeScript File',
     extensions: ['.ts', '.tsx'],
   },
+  vue: {
+    label: 'Vue File',
+    extensions: ['.vue'],
+  },
   ccpp: {
     label: 'C/C++ File',
     extensions: ['.c', '.cpp', '.h', '.hpp'],
@@ -163,6 +329,8 @@ const fileTypes = {
     extensions: ['.asm', '.assembly', '.as', '.s'],
   },
 };
+
+const fileTypeEntries = Object.entries(fileTypes);
 
 const effectiveExtensions = computed(() => {
   const type = currentType.value;
@@ -187,19 +355,7 @@ const canChooseTypeSeparately = computed(() => {
   const type = currentType.value;
   const templateGroup = fileTemplates[type];
 
-  if (!templateGroup?.variants) {
-    return true;
-  }
-
-  if (templateGroup.allowSeparateType === true) {
-    return true;
-  }
-
-  if (templateGroup.allowSeparateType === false) {
-    return false;
-  }
-
-  return true;
+  return !templateGroup?.variants || templateGroup.allowSeparateType !== false;
 });
 
 function syncSelectedExtension() {
@@ -218,6 +374,25 @@ function syncSelectedExtension() {
 watch([selectedVariant, currentType], () => {
   syncSelectedExtension();
 });
+
+function refreshTypeState(type) {
+  const normalizedType = fileTypes[type] ? type : 'txt';
+  const fileType = fileTypes[normalizedType];
+  const templateGroup = fileTemplates[normalizedType];
+
+  currentExtensions.value = [...fileType.extensions];
+  selectedExtension.value = fileType.extensions[0] || '';
+
+  if (templateGroup?.variants) {
+    currentVariants.value = Object.entries(templateGroup.variants);
+    selectedVariant.value = currentVariants.value[0]?.[0] ?? null;
+  } else {
+    currentVariants.value = [];
+    selectedVariant.value = null;
+  }
+
+  syncSelectedExtension();
+}
 
 function toggle() {
   isOpen.value = !isOpen.value;
@@ -238,29 +413,16 @@ function saveFile(){
 }
 
 function openCreateModal(type = 'txt') {
-  const normalizedType = fileTypes[type] ? type : 'txt';
-  const fileType = fileTypes[normalizedType];
-
-  currentType.value = normalizedType;
-
-  currentExtensions.value = [...fileType.extensions];
-  selectedExtension.value = fileType.extensions[0];
-
-  const templateGroup = fileTemplates[normalizedType];
-
-  if (templateGroup?.variants) {
-    currentVariants.value = Object.entries(templateGroup.variants);
-    selectedVariant.value = currentVariants.value[0][0];
-  } else {
-    currentVariants.value = [];
-    selectedVariant.value = null;
-  }
-
+  currentType.value = fileTypes[type] ? type : 'txt';
+  refreshTypeState(currentType.value);
   fileName.value = '';
   isOpen.value = false;
   isSubOpen.value = false;
   isCreateModalOpen.value = true;
-  syncSelectedExtension();
+}
+
+function handleTypeChange(event) {
+  refreshTypeState(event.target.value);
 }
 
 function closeCreateModal() {
@@ -350,17 +512,9 @@ async function handleFolder(event) {
         <button type="button">New</button>
 
         <ul v-if="isSubOpen" class="dropdown-submenu">
-          <li><button @click="openCreateModal('txt')">File</button></li>
-          <li><button @click="openCreateModal('rust')">Rust File</button></li>
-          <li><button @click="openCreateModal('python')">Python File</button></li>
-          <li><button @click="openCreateModal('html')">HTML File</button></li>
-          <li><button @click="openCreateModal('css')">CSS File</button></li>
-          <li><button @click="openCreateModal('js')">JavaScript File</button></li>
-          <li><button @click="openCreateModal('ts')">TypeScript File</button></li>
-          <li><button @click="openCreateModal('gamma')">Gamma File</button></li>
-          <li><button @click="openCreateModal('ccpp')">C/C++ File</button></li>
-          <li><button @click="openCreateModal('md')">Markdown File</button></li>
-          <li><button @click="openCreateModal('asm')">Asm File</button></li>
+          <li v-for="([key, info]) in fileTypeEntries" :key="key">
+            <button @click="openCreateModal(key)">{{ info.label }}</button>
+          </li>
         </ul>
       </li>
     </ul>
@@ -377,7 +531,7 @@ async function handleFolder(event) {
             @keydown.enter.prevent="submitCreateFile"
         />
 
-        <label for="file-extension">Type</label>
+        <label for="file-extension">Extension</label>
         <select v-if="canChooseTypeSeparately" id="file-extension" v-model="selectedExtension">
           <option
               v-for="ext in effectiveExtensions"
@@ -420,9 +574,8 @@ async function handleFolder(event) {
     <input
         type="file"
         ref="folderInput"
-        webkitdirectory
-        directory
         style="display:none"
+        v-bind="folderInputAttrs"
         @change="handleFolder"
     />
   </div>
