@@ -4,96 +4,154 @@ import TerminalComponent from './TerminalComponent.vue';
 import '../styles/LeftSideBar.css';
 
 const props = defineProps({
-  files: {
-	type: Array,
-	default: () => [],
-  },
-  isFileTreeOpen: {
-	type: Boolean,
-	default: true,
-  },
-  isTerminalOpen: {
-	type: Boolean,
-	default: true,
-  },
-  terminalHeight: {
-	type: Number,
-	default: 240,
-  },
-  fileTreeMaxHeight: {
-	type: String,
-	default: '100%',
-  },
+  files: { type: Array, default: () => [] },
+
+  isFileTreeOpen: { type: Boolean, default: true },
+  isTerminalOpen: { type: Boolean, default: true },
+
+  isGitOpen: { type: Boolean, default: false },
+  isCommitOpen: { type: Boolean, default: false },
+  isPullRequestsOpen: { type: Boolean, default: false },
+
+  terminalHeight: { type: Number, default: 240 },
+  fileTreeMaxHeight: { type: String, default: '100%' },
 });
 
-const emit = defineEmits(['open-file', 'toggle-file-tree', 'toggle-terminal', 'start-terminal-resize']);
-
-function toggleTree() {
-  emit('toggle-file-tree');
-}
+const emit = defineEmits([
+  'open-file',
+  'toggle-file-tree',
+  'toggle-terminal',
+  'toggle-git',
+  'toggle-commit',
+  'toggle-pull-requests',
+  'start-terminal-resize'
+]);
 </script>
 
 <template>
   <div class="left-sidebar-shell">
-	<nav class="left-toolbar">
-	  <button
-		type="button"
-		class="tool-button"
-		:class="{ active: props.isFileTreeOpen }"
-		title="Toggle File Tree"
-		@click="toggleTree"
-	  >
-		<svg viewBox="0 0 24 24" aria-hidden="true" class="tool-icon">
-		  <path d="M3 5h7l2 2h9v12H3z" fill="none" stroke="currentColor" stroke-width="1.8" />
-		  <path d="M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8" />
-		</svg>
-	  </button>
 
-	  <button
-		type="button"
-		class="tool-button terminal-toggle"
-		:class="{ active: props.isTerminalOpen }"
-		title="Toggle Terminal"
-		@click="emit('toggle-terminal')"
-	  >
-		<svg viewBox="0 0 24 24" aria-hidden="true" class="tool-icon">
-		  <path d="M4 5h16v14H4z" fill="none" stroke="currentColor" stroke-width="1.8" />
-		  <path d="M8 10l2 2-2 2" fill="none" stroke="currentColor" stroke-width="1.8" />
-		  <path d="M12 14h4" fill="none" stroke="currentColor" stroke-width="1.8" />
-		</svg>
-	  </button>
-	</nav>
+    <!-- TOOLBAR -->
+    <nav class="left-toolbar">
 
+      <!-- TOP SECTION -->
+      <div class="toolbar-top">
+
+        <!-- FILE TREE -->
+        <button
+            class="tool-button"
+            :class="{ active: props.isFileTreeOpen }"
+            title="Explorer"
+            @click="emit('toggle-file-tree')">
+
+          <svg viewBox="0 0 24 24" class="tool-icon">
+            <path d="M3 5h7l2 2h9v12H3z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </button>
+
+        <!-- COMMIT -->
+        <button
+            class="tool-button"
+            :class="{ active: props.isCommitOpen }"
+            title="Commit"
+            @click="emit('toggle-commit')">
+
+          <svg viewBox="0 0 24 24" class="tool-icon">
+            <path d="M4 12h16" stroke="currentColor" stroke-width="1.6"/>
+            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </button>
+
+        <!-- PULL REQUESTS -->
+        <button
+            class="tool-button"
+            :class="{ active: props.isPullRequestsOpen }"
+            title="Pull Requests"
+            @click="emit('toggle-pull-requests')">
+
+          <svg viewBox="0 0 24 24" class="tool-icon">
+            <g transform="rotate(180 12 12)">
+              <circle cx="6" cy="6" r="2" fill="currentColor"/>
+              <circle cx="18" cy="6" r="2" fill="currentColor"/>
+              <circle cx="12" cy="18" r="2" fill="currentColor"/>
+              <path d="M6 8v4c0 3 6 3 6 6" stroke="currentColor" stroke-width="1.6" fill="none"/>
+              <path d="M18 8v4c0 3-6 3-6 6" stroke="currentColor" stroke-width="1.6" fill="none"/>
+            </g>
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- BOTTOM SECTION -->
+      <div class="toolbar-bottom">
+
+        <!-- TERMINAL -->
+        <button
+            class="tool-button"
+            :class="{ active: props.isTerminalOpen }"
+            title="Terminal"
+            @click="emit('toggle-terminal')">
+
+          <svg viewBox="0 0 24 24" class="tool-icon">
+            <path d="M4 5h16v14H4z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8 10l2 2-2 2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 14h4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </button>
+
+        <!-- GIT -->
+        <button
+            class="tool-button"
+            :class="{ active: props.isGitOpen }"
+            title="Git"
+            @click="emit('toggle-git')">
+
+          <svg viewBox="0 0 24 24" class="tool-icon">
+            <circle cx="6" cy="6" r="2" fill="currentColor"/>
+            <circle cx="18" cy="6" r="2" fill="currentColor"/>
+            <circle cx="12" cy="18" r="2" fill="currentColor"/>
+            <path d="M6 8v4c0 3 6 3 6 6" stroke="currentColor" stroke-width="1.6" fill="none"/>
+            <path d="M18 8v4c0 3-6 3-6 6" stroke="currentColor" stroke-width="1.6" fill="none"/>
+          </svg>
+        </button>
+
+      </div>
+
+    </nav>
+
+    <!-- PANELS -->
     <div class="left-panels">
-	  <div
-		v-if="props.isFileTreeOpen"
-		class="left-content"
-		:style="{ height: props.fileTreeMaxHeight, maxHeight: props.fileTreeMaxHeight }"
-	  >
-		<FileThreeComponent
-		  :files="props.files"
-		  @open-file="emit('open-file', $event)"
-		  @close="emit('toggle-file-tree')"
-		/>
-	  </div>
 
-	  <div
-		v-if="props.isFileTreeOpen && props.isTerminalOpen"
-		class="left-resize-handle"
-		@pointerdown.prevent="emit('start-terminal-resize')"
-	  ></div>
+      <!-- FILE TREE -->
+      <div
+          v-if="props.isFileTreeOpen"
+          class="left-content"
+          :style="{ height: props.fileTreeMaxHeight }">
 
-	  <div
-		v-if="props.isTerminalOpen"
-		class="left-terminal-space"
-		:style="{ height: `${props.terminalHeight}px` }"
-	  >
-		<TerminalComponent @close="emit('toggle-terminal')" />
-	  </div>
+        <FileThreeComponent
+            :files="props.files"
+            @open-file="emit('open-file', $event)"
+            @close="emit('toggle-file-tree')"
+        />
+      </div>
+
+      <!-- RESIZE -->
+      <div
+          v-if="props.isFileTreeOpen && props.isTerminalOpen"
+          class="left-resize-handle"
+          @pointerdown.prevent="emit('start-terminal-resize')"
+      />
+
+      <!-- TERMINAL -->
+      <div
+          v-if="props.isTerminalOpen"
+          class="left-terminal-space"
+          :style="{ height: `${props.terminalHeight}px` }">
+
+        <TerminalComponent @close="emit('toggle-terminal')" />
+      </div>
+
     </div>
   </div>
 </template>
-
-<style scoped>
-
-</style>

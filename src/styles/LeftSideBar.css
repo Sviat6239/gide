@@ -85,3 +85,15 @@
   border-radius: 0;
 }
 
+.toolbar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.toolbar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+}
