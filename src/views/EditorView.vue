@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, ref } from 'vue';
 import CodeAreaComponent from '../components/CodeAreaComponent.vue';
 import TerminalComponent from '../components/TerminalComponent.vue';
+import GitComponent from '../components/GitComponent.vue';
 import HeaderComponent from '../components/HeaderComponent.vue';
 import LeftSideBarComponent from '../components/LeftSideBarComponent.vue';
 import RightSideBarComponent from '../components/RightSideBarComponent.vue';
@@ -12,12 +13,27 @@ const activeTabId = ref(null);
 let nextTabId = 1;
 const leftPaneWidth = ref(260);
 const terminalHeight = ref(240);
+
 const isFileTreeOpen = ref(true);
-const isTerminalOpen = ref(true);
+const isTerminalOpen = ref(false);
+const isGitOpen = ref(false);
+const isCommitOpen = ref(false);
+const isPullRequestsOpen = ref(false);
 
 const leftToolbarWidth = 44;
 const rightPaneWidth = 40;
-const effectiveLeftPaneWidth = computed(() => (isFileTreeOpen.value ? leftPaneWidth.value : leftToolbarWidth));
+
+// Сайдбар открыт, если активна любая из его вкладок (Project, Commit, PRs)
+const isAnyLeftPanelOpen = computed(() =>
+  isFileTreeOpen.value || isCommitOpen.value || isPullRequestsOpen.value
+);
+
+// Нижняя панель открыта, если активен Терминал или Git
+const isAnyBottomPanelOpen = computed(() =>
+  isTerminalOpen.value || isGitOpen.value
+);
+
+const effectiveLeftPaneWidth = computed(() => (isAnyLeftPanelOpen.value ? leftPaneWidth.value : leftToolbarWidth));
 
 let stopResize = null;
 
@@ -185,12 +201,41 @@ function handleOpenFileFromTree(payload) {
   }
 }
 
-function toggleFileTree() {
-  isFileTreeOpen.value = !isFileTreeOpen.value;
+function closeAllLeftPanels() {
+  isFileTreeOpen.value = false;
+  isCommitOpen.value = false;
+  isPullRequestsOpen.value = false;
 }
 
+function toggleFileTree() {
+  const target = !isFileTreeOpen.value;
+  closeAllLeftPanels();
+  isFileTreeOpen.value = target;
+}
+
+function toggleCommit() {
+  const target = !isCommitOpen.value;
+  closeAllLeftPanels();
+  isCommitOpen.value = target;
+}
+
+function togglePullRequests() {
+  const target = !isPullRequestsOpen.value;
+  closeAllLeftPanels();
+  isPullRequestsOpen.value = target;
+}
+
+// Управление нижней панелью (Git и Терминал теперь делят одно место)
 function toggleTerminal() {
-  isTerminalOpen.value = !isTerminalOpen.value;
+  const target = !isTerminalOpen.value;
+  isGitOpen.value = false;
+  isTerminalOpen.value = target;
+}
+
+function toggleGit() {
+  const target = !isGitOpen.value;
+  isTerminalOpen.value = false;
+  isGitOpen.value = target;
 }
 
 function setupPointerResize(onMove) {
@@ -214,7 +259,7 @@ function setupPointerResize(onMove) {
 function startLeftResize(event) {
   const layoutBounds = event.currentTarget.closest('.content-row')?.getBoundingClientRect();
 
-  if (!layoutBounds || !isFileTreeOpen.value) {
+  if (!layoutBounds || !isAnyLeftPanelOpen.value) {
     return;
   }
 
@@ -263,14 +308,20 @@ onBeforeUnmount(() => {
               :files="tabs"
               :is-file-tree-open="isFileTreeOpen"
               :is-terminal-open="isTerminalOpen"
+              :is-git-open="isGitOpen"
+              :is-commit-open="isCommitOpen"
+              :is-pull-requests-open="isPullRequestsOpen"
               @toggle-file-tree="toggleFileTree"
               @toggle-terminal="toggleTerminal"
+              @toggle-git="toggleGit"
+              @toggle-commit="toggleCommit"
+              @toggle-pull-requests="togglePullRequests"
               @open-file="handleOpenFileFromTree"
           />
         </aside>
 
         <div
-            v-if="isFileTreeOpen"
+            v-if="isAnyLeftPanelOpen"
             class="resize-handle vertical"
             @pointerdown.prevent="startLeftResize"
         ></div>
@@ -287,17 +338,18 @@ onBeforeUnmount(() => {
           </div>
 
           <div
-              v-if="isTerminalOpen"
+              v-if="isAnyBottomPanelOpen"
               class="resize-handle horizontal"
               @pointerdown.prevent="startTerminalResize"
           ></div>
 
           <div
-              v-if="isTerminalOpen"
-              class="terminal-view"
+              v-if="isAnyBottomPanelOpen"
+              class="bottom-view"
               :style="{ height: `${terminalHeight}px` }"
           >
-            <TerminalComponent @close="toggleTerminal" />
+            <TerminalComponent v-if="isTerminalOpen" @close="toggleTerminal" />
+            <GitComponent v-if="isGitOpen" @close="toggleGit" />
           </div>
         </section>
 
@@ -387,7 +439,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-.terminal-view {
+.bottom-view {
   flex: 0 0 auto;
   min-height: 0;
   display: flex;

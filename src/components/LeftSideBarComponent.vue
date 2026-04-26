@@ -1,13 +1,14 @@
 <script setup>
 import FileThreeComponent from './FileThreeComponent.vue';
-import TerminalComponent from './TerminalComponent.vue';
+import PullRequestsComponent from "./PullRequestsComponent.vue";
+import CommitComponent from "./CommitComponent.vue";
 import '../styles/LeftSideBar.css';
 
 const props = defineProps({
   files: { type: Array, default: () => [] },
 
   isFileTreeOpen: { type: Boolean, default: true },
-  isTerminalOpen: { type: Boolean, default: true },
+  isTerminalOpen: { type: Boolean, default: false },
 
   isGitOpen: { type: Boolean, default: false },
   isCommitOpen: { type: Boolean, default: false },
@@ -24,7 +25,6 @@ const emit = defineEmits([
   'toggle-git',
   'toggle-commit',
   'toggle-pull-requests',
-  'start-terminal-resize'
 ]);
 </script>
 
@@ -41,7 +41,7 @@ const emit = defineEmits([
         <button
             class="tool-button"
             :class="{ active: props.isFileTreeOpen }"
-            title="Explorer"
+            title="Project"
             @click="emit('toggle-file-tree')">
 
           <svg viewBox="0 0 24 24" class="tool-icon">
@@ -121,13 +121,13 @@ const emit = defineEmits([
     </nav>
 
     <!-- PANELS -->
-    <div class="left-panels">
+    <div class="left-panels" v-if="isFileTreeOpen || isCommitOpen || isPullRequestsOpen">
 
       <!-- FILE TREE -->
       <div
           v-if="props.isFileTreeOpen"
           class="left-content"
-          :style="{ height: props.fileTreeMaxHeight }">
+          :style="{ height: '100%' }">
 
         <FileThreeComponent
             :files="props.files"
@@ -136,20 +136,25 @@ const emit = defineEmits([
         />
       </div>
 
-      <!-- RESIZE -->
+      <!-- COMMIT -->
       <div
-          v-if="props.isFileTreeOpen && props.isTerminalOpen"
-          class="left-resize-handle"
-          @pointerdown.prevent="emit('start-terminal-resize')"
-      />
+          v-if="props.isCommitOpen"
+          class="left-content"
+          :style="{ height: '100%' }">
 
-      <!-- TERMINAL -->
+        <CommitComponent
+            :files="props.files"
+            @open-file="emit('open-file', $event)"
+            @close="emit('toggle-commit')"/>
+      </div>
+
+      <!-- Pull Requests-->
       <div
-          v-if="props.isTerminalOpen"
-          class="left-terminal-space"
-          :style="{ height: `${props.terminalHeight}px` }">
+          v-if="props.isPullRequestsOpen"
+          class="left-content"
+          :style="{ height: '100%' }">
 
-        <TerminalComponent @close="emit('toggle-terminal')" />
+        <PullRequestsComponent @close="emit('toggle-pull-requests')" />
       </div>
 
     </div>
