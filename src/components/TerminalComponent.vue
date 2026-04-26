@@ -1,22 +1,14 @@
 <script setup>
-import "../styles/Terminal.css"
+import "../styles/Terminal.css";
+
+const emit = defineEmits(['close']);
 </script>
 
 <template>
   <div class="terminal-area">
-    <div class="navbar">
-      <div id="item-block">
-        <p>block 1</p>
-      </div>
-      <div id="item-block">
-        <p>block 2</p>
-      </div>
-      <div id="item-block">
-        <p>block 3</p>
-      </div>
-      <div id="item-block">
-        <p>block 4</p>
-      </div>
+    <div class="terminal-header">
+      <p>Terminal</p>
+      <button type="button" class="terminal-close" @click="emit('close')">-</button>
     </div>
     <textarea name="" id="" cols="30" rows="10" class="terminal-textarea"></textarea>
   </div>

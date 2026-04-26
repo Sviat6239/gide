@@ -77,5 +77,12 @@ function syncScroll() {
 </template>
 
 <style scoped>
-
+.code-area {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #1e1e1e;
+}
 </style>

@@ -10,6 +10,32 @@
   background-color: var(--app-bg-color);
 }
 
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #3a4253;
+}
+
+.terminal-header p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.terminal-close {
+  border: 1px solid #3a4253;
+  border-radius: 6px;
+  background-color: #2a2a2a;
+  color: var(--app-text-color);
+  width: 28px;
+  height: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 .navbar {
   display: flex;
   flex-direction: row;

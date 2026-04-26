@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 import CodeAreaComponent from '../components/CodeAreaComponent.vue';
 import TerminalComponent from '../components/TerminalComponent.vue';
 import HeaderComponent from '../components/HeaderComponent.vue';
@@ -11,8 +11,13 @@ const tabs = ref([]);
 const activeTabId = ref(null);
 let nextTabId = 1;
 const leftPaneWidth = ref(260);
-const rightPaneWidth = ref(240);
 const terminalHeight = ref(240);
+const isFileTreeOpen = ref(true);
+const isTerminalOpen = ref(true);
+
+const leftToolbarWidth = 44;
+const rightPaneWidth = 40;
+const effectiveLeftPaneWidth = computed(() => (isFileTreeOpen.value ? leftPaneWidth.value : leftToolbarWidth));
 
 let stopResize = null;
 
@@ -167,7 +172,25 @@ function handleOpenFileFromTree(payload) {
     return;
   }
 
-  openOrActivateTab(payload.fullName, payload.content ?? '');
+  const normalizedPath = String(payload.fullName).replace(/\\/g, '/');
+  const existingTab = tabs.value.find((tab) => String(tab.fullName).replace(/\\/g, '/') === normalizedPath);
+
+  if (existingTab) {
+    activeTabId.value = existingTab.id;
+    return;
+  }
+
+  if (payload.content !== undefined) {
+    openOrActivateTab(payload.fullName, payload.content ?? '');
+  }
+}
+
+function toggleFileTree() {
+  isFileTreeOpen.value = !isFileTreeOpen.value;
+}
+
+function toggleTerminal() {
+  isTerminalOpen.value = !isTerminalOpen.value;
 }
 
 function setupPointerResize(onMove) {
@@ -189,41 +212,31 @@ function setupPointerResize(onMove) {
 }
 
 function startLeftResize(event) {
-  const shellBounds = event.currentTarget.closest('.editor-shell')?.getBoundingClientRect();
+  const layoutBounds = event.currentTarget.closest('.content-row')?.getBoundingClientRect();
 
-  if (!shellBounds) {
+  if (!layoutBounds || !isFileTreeOpen.value) {
     return;
   }
 
   setupPointerResize((moveEvent) => {
-    const width = moveEvent.clientX - shellBounds.left;
+    const width = moveEvent.clientX - layoutBounds.left;
     leftPaneWidth.value = Math.min(460, Math.max(140, width));
   });
 }
 
-function startRightResize(event) {
-  const shellBounds = event.currentTarget.closest('.editor-shell')?.getBoundingClientRect();
+function startTerminalResize() {
+  const layoutElement = document.querySelector('.main-layout');
 
-  if (!shellBounds) {
+  if (!layoutElement) {
     return;
   }
 
-  setupPointerResize((moveEvent) => {
-    const width = shellBounds.right - moveEvent.clientX;
-    rightPaneWidth.value = Math.min(460, Math.max(140, width));
-  });
-}
-
-function startTerminalResize(event) {
-  const contentBounds = event.currentTarget.closest('.center-content')?.getBoundingClientRect();
-
-  if (!contentBounds) {
-    return;
-  }
+  const layoutBounds = layoutElement.getBoundingClientRect();
 
   setupPointerResize((moveEvent) => {
-    const height = contentBounds.bottom - moveEvent.clientY;
-    terminalHeight.value = Math.min(420, Math.max(120, height));
+    const rawHeight = layoutBounds.bottom - moveEvent.clientY;
+    const maxHeight = Math.max(120, layoutBounds.height - 120 - 4);
+    terminalHeight.value = Math.min(maxHeight, Math.max(120, rawHeight));
   });
 }
 
@@ -242,35 +255,57 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="main-layout">
-      <aside class="left-sidebar" :style="{ width: `${leftPaneWidth}px` }">
-        <LeftSideBarComponent @open-file="handleOpenFileFromTree" />
-      </aside>
+      <div class="content-row">
 
-      <div class="resize-handle vertical" @pointerdown.prevent="startLeftResize"></div>
-
-      <main class="center-content">
-        <div class="editor-view" :style="{ minHeight: `calc(100% - ${terminalHeight}px - 8px)` }">
-          <CodeAreaComponent
-              :tabs="tabs"
-              :active-tab-id="activeTabId"
-              @select-tab="selectTab"
-              @close-tab="closeTab"
-              @update-content="updateTabContent"
+        <!-- LEFT -->
+        <aside class="left-sidebar" :style="{ width: `${effectiveLeftPaneWidth}px` }">
+          <LeftSideBarComponent
+              :files="tabs"
+              :is-file-tree-open="isFileTreeOpen"
+              :is-terminal-open="isTerminalOpen"
+              @toggle-file-tree="toggleFileTree"
+              @toggle-terminal="toggleTerminal"
+              @open-file="handleOpenFileFromTree"
           />
-        </div>
+        </aside>
 
-        <div class="resize-handle horizontal" @pointerdown.prevent="startTerminalResize"></div>
+        <div
+            v-if="isFileTreeOpen"
+            class="resize-handle vertical"
+            @pointerdown.prevent="startLeftResize"
+        ></div>
 
-        <div class="terminal-view" :style="{ height: `${terminalHeight}px` }">
-          <TerminalComponent />
-        </div>
-      </main>
+        <section class="workspace-area">
+          <div class="editor-view">
+            <CodeAreaComponent
+                :tabs="tabs"
+                :active-tab-id="activeTabId"
+                @select-tab="selectTab"
+                @close-tab="closeTab"
+                @update-content="updateTabContent"
+            />
+          </div>
 
-      <div class="resize-handle vertical" @pointerdown.prevent="startRightResize"></div>
+          <div
+              v-if="isTerminalOpen"
+              class="resize-handle horizontal"
+              @pointerdown.prevent="startTerminalResize"
+          ></div>
 
-      <aside class="right-sidebar" :style="{ width: `${rightPaneWidth}px` }">
-        <RightSideBarComponent />
-      </aside>
+          <div
+              v-if="isTerminalOpen"
+              class="terminal-view"
+              :style="{ height: `${terminalHeight}px` }"
+          >
+            <TerminalComponent @close="toggleTerminal" />
+          </div>
+        </section>
+
+        <aside class="right-sidebar" :style="{ width: `${rightPaneWidth}px` }">
+          <RightSideBarComponent />
+        </aside>
+
+      </div>
     </div>
 
     <footer class="footer">
@@ -281,12 +316,14 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .editor-shell {
-  --footer-height: 44px;
-  min-height: 100vh;
+  --footer-height: 38px;
+  height: 100dvh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
   padding-bottom: var(--footer-height);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .header {
@@ -296,12 +333,31 @@ onBeforeUnmount(() => {
 
 .main-layout {
   display: flex;
+  flex-direction: column;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+}
+
+.content-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.workspace-area {
+  flex: 1;
+  min-width: 100px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .left-sidebar,
 .right-sidebar {
+  flex: 0 0 auto;
   min-height: 0;
   overflow: hidden;
   border: 1px solid #3a4253;
@@ -319,20 +375,23 @@ onBeforeUnmount(() => {
 .center-content {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .editor-view {
-  min-height: 0;
+  flex: 1;
   display: flex;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .terminal-view {
+  flex: 0 0 auto;
   min-height: 0;
   display: flex;
+  overflow: hidden;
 }
 
 .resize-handle {
@@ -354,6 +413,7 @@ onBeforeUnmount(() => {
   width: 100%;
   flex-basis: 4px;
 }
+
 
 .footer {
   position: fixed;

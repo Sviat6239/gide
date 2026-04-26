@@ -1,57 +1,101 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import { invoke } from '@tauri-apps/api/core';
+import { computed, ref } from 'vue';
 import '../styles/FileThree.css';
 
-const emit = defineEmits(['open-file']);
+const props = defineProps({
+  files: {
+	type: Array,
+	default: () => [],
+  },
+});
 
-const rootPath = ref('');
-const treeRoot = ref(null);
+const emit = defineEmits(['open-file', 'close']);
+
 const expandedMap = ref({});
-const loading = ref(false);
-const errorText = ref('');
+
+function normalizePath(path) {
+  return String(path || '').replace(/\\/g, '/').replace(/^\/+/, '');
+}
+
+function buildTreeFromFiles(files) {
+  const root = {
+	name: 'workspace',
+	path: '',
+	isDir: true,
+	children: [],
+  };
+
+  files.forEach((file) => {
+	const fullName = normalizePath(file.fullName);
+
+	if (!fullName) {
+	  return;
+	}
+
+	const parts = fullName.split('/').filter(Boolean);
+	let cursor = root;
+
+	parts.forEach((part, index) => {
+	  const isLast = index === parts.length - 1;
+	  const nextPath = cursor.path ? `${cursor.path}/${part}` : part;
+	  let nextNode = cursor.children.find((child) => child.path === nextPath);
+
+	  if (!nextNode) {
+		nextNode = {
+		  name: part,
+		  path: nextPath,
+		  isDir: !isLast,
+		  children: [],
+		};
+		cursor.children.push(nextNode);
+	  }
+
+	  if (!isLast) {
+		nextNode.isDir = true;
+	  }
+
+	  cursor = nextNode;
+	});
+  });
+
+  const sortChildren = (node) => {
+	node.children.sort((left, right) => {
+	  if (left.isDir !== right.isDir) {
+		return left.isDir ? -1 : 1;
+	  }
+
+	  return left.name.localeCompare(right.name);
+	});
+
+	node.children.forEach(sortChildren);
+  };
+
+  sortChildren(root);
+  return root;
+}
+
+const treeRoot = computed(() => buildTreeFromFiles(props.files));
 
 const visibleNodes = computed(() => {
-  if (!treeRoot.value) {
+  if (!treeRoot.value?.children?.length) {
 	return [];
   }
 
   const result = [];
 
   const walk = (node, depth) => {
-	result.push({ node, depth });
+			result.push({ node, depth });
 
-	if (!node.isDir || !expandedMap.value[node.path]) {
-	  return;
-	}
+			if (!node.isDir || !expandedMap.value[node.path]) {
+			  return;
+			}
 
-	node.children.forEach((child) => walk(child, depth + 1));
+			node.children.forEach((child) => walk(child, depth + 1));
   };
 
-  walk(treeRoot.value, 0);
+		  treeRoot.value.children.forEach((child) => walk(child, 0));
   return result;
 });
-
-async function loadTree() {
-  loading.value = true;
-  errorText.value = '';
-
-  try {
-	if (!rootPath.value) {
-	  rootPath.value = await invoke('get_default_root');
-	}
-
-	const root = await invoke('read_directory_tree', { rootPath: rootPath.value });
-	treeRoot.value = root;
-	expandedMap.value = {
-	  [root.path]: true,
-	};
-  } catch (error) {
-	errorText.value = `Failed to load tree: ${String(error)}`;
-  } finally {
-	loading.value = false;
-  }
-}
 
 function isExpanded(path) {
   return Boolean(expandedMap.value[path]);
@@ -64,52 +108,40 @@ function toggleDirectory(path) {
   };
 }
 
-async function handleNodeClick(node) {
+function handleNodeClick(node) {
   if (node.isDir) {
-	toggleDirectory(node.path);
-	return;
+    toggleDirectory(node.path);
+    return;
   }
 
-  try {
-	const content = await invoke('read_text_file', { filePath: node.path });
-	emit('open-file', {
-	  fullName: node.path,
-	  content,
-	});
-  } catch (error) {
-	errorText.value = `Failed to open file: ${String(error)}`;
-  }
+  emit('open-file', { fullName: node.path });
 }
-
-onMounted(loadTree);
 </script>
 
 <template>
   <section class="file-tree-wrapper">
-	<header class="file-tree-header">
-	  <p>File Tree</p>
-	  <button type="button" class="reload-button" @click="loadTree">Reload</button>
-	</header>
+    <header class="file-tree-header">
+      <p>File Tree</p>
+      <button type="button" class="collapse-button" @click="emit('close')">-</button>
+    </header>
 
-	<p class="root-path" v-if="rootPath">{{ rootPath }}</p>
-	<p class="tree-status" v-if="loading">Loading...</p>
-	<p class="tree-error" v-else-if="errorText">{{ errorText }}</p>
+    <p class="tree-status" v-if="!visibleNodes.length">No files yet. Import a folder or create files.</p>
 
-	<div class="tree-list" v-else>
-	  <button
-		v-for="entry in visibleNodes"
-		:key="entry.node.path"
-		type="button"
-		class="tree-node"
-		:style="{ paddingLeft: `${entry.depth * 14 + 8}px` }"
-		@click="handleNodeClick(entry.node)"
-	  >
-		<span class="node-caret" v-if="entry.node.isDir">{{ isExpanded(entry.node.path) ? 'v' : '>' }}</span>
-		<span class="node-caret" v-else> </span>
-		<span class="node-kind">{{ entry.node.isDir ? '[D]' : '[F]' }}</span>
-		<span class="node-name">{{ entry.node.name }}</span>
-	  </button>
-	</div>
+    <div class="tree-list" v-else>
+      <button
+        v-for="entry in visibleNodes"
+        :key="entry.node.path"
+        type="button"
+        class="tree-node"
+        :style="{ paddingLeft: `${entry.depth * 14 + 8}px` }"
+        @click="handleNodeClick(entry.node)"
+      >
+        <span class="node-caret" v-if="entry.node.isDir">{{ isExpanded(entry.node.path) ? 'v' : '>' }}</span>
+        <span class="node-caret" v-else> </span>
+        <span class="node-kind">{{ entry.node.isDir ? '[D]' : '[F]' }}</span>
+        <span class="node-name">{{ entry.node.name }}</span>
+      </button>
+    </div>
   </section>
 </template>
 
