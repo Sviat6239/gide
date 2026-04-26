@@ -1,27 +1,46 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import '../styles/Header.css';
+import MenuDropdown from './MenuDropdown.vue';
+import '../styles/Header.css'
+
 
 const emit = defineEmits(['create-file', 'import-files']);
 
-const isOpen = ref(false);
-const isSubOpen = ref(false);
+const activeMenu = ref(null);
+const activeSubmenu = ref(null);
+
+function toggleMenu(menu) {
+  activeMenu.value = activeMenu.value === menu ? null : menu;
+}
+
+function openSubmenu(name) {
+  activeSubmenu.value = name;
+}
+
+function closeSubmenu() {
+  activeSubmenu.value = null;
+}
+
 const isCreateModalOpen = ref(false);
+
 
 const fileInput = ref(null);
 const folderInput = ref(null);
-const fileName = ref('');
+
 const folderInputAttrs = {
   webkitdirectory: true,
   directory: true,
 };
 
+
+const fileName = ref('');
 const selectedExtension = ref('.txt');
 const selectedVariant = ref(null);
 const currentType = ref(null);
 
 const currentExtensions = ref([]);
 const currentVariants = ref([]);
+
 
 const fileTemplates = {
   txt: {
@@ -173,8 +192,8 @@ body {
   return <div>Hello, React</div>;
 }
 `,
+      },
     },
-  },
   },
   ts: {
     allowSeparateType: false,
@@ -275,6 +294,7 @@ int main() {
   },
 };
 
+
 const fileTypes = {
   txt: {
     label: 'Text File',
@@ -342,7 +362,9 @@ const effectiveExtensions = computed(() => {
   const typeExtensions = currentExtensions.value;
   const templateGroup = fileTemplates[type];
   const variant = templateGroup?.variants?.[selectedVariant.value];
-  const variantExtensions = Array.isArray(variant?.extensions) ? variant.extensions : [];
+  const variantExtensions = Array.isArray(variant?.extensions)
+      ? variant.extensions
+      : [];
 
   if (variantExtensions.length && templateGroup?.allowSeparateType === false) {
     return variantExtensions;
@@ -351,29 +373,26 @@ const effectiveExtensions = computed(() => {
   return variantExtensions.length ? variantExtensions : typeExtensions;
 });
 
-const canChooseTypeSeparately = computed(() => {
-  const type = currentType.value;
-  const templateGroup = fileTemplates[type];
-
-  return !templateGroup?.variants || templateGroup.allowSeparateType !== false;
-});
-
-function syncSelectedExtension() {
-  const extensions = effectiveExtensions.value;
-
-  if (!extensions.length) {
-    selectedExtension.value = '';
-    return;
-  }
-
-  if (!canChooseTypeSeparately.value || !extensions.includes(selectedExtension.value)) {
-    selectedExtension.value = extensions[0];
-  }
-}
-
 watch([selectedVariant, currentType], () => {
   syncSelectedExtension();
 });
+
+  function syncSelectedExtension() {
+    const extensions = effectiveExtensions.value;
+
+    if (!extensions.length) {
+      selectedExtension.value = '';
+      return;
+    }
+
+    if (!canChooseTypeSeparately.value || !extensions.includes(selectedExtension.value)) {
+      selectedExtension.value = extensions[0];
+    }
+  }
+
+  watch([selectedVariant, currentType], () => {
+    syncSelectedExtension();
+  });
 
 function refreshTypeState(type) {
   const normalizedType = fileTypes[type] ? type : 'txt';
@@ -394,35 +413,29 @@ function refreshTypeState(type) {
   syncSelectedExtension();
 }
 
-function toggle() {
-  isOpen.value = !isOpen.value;
-}
-
 function openFile() {
   fileInput.value.click();
-  isOpen.value = false;
+  activeMenu.value = null;
 }
 
 function openFolder() {
   folderInput.value.click();
-  isOpen.value = false;
+  activeMenu.value = null;
 }
 
-function saveFile(){
-
+function saveFile() {
 }
 
 function openCreateModal(type = 'txt') {
   currentType.value = fileTypes[type] ? type : 'txt';
   refreshTypeState(currentType.value);
-  fileName.value = '';
-  isOpen.value = false;
-  isSubOpen.value = false;
-  isCreateModalOpen.value = true;
-}
 
-function handleTypeChange(event) {
-  refreshTypeState(event.target.value);
+  fileName.value = '';
+
+  activeMenu.value = null;
+  activeSubmenu.value = null;
+
+  isCreateModalOpen.value = true;
 }
 
 function closeCreateModal() {
@@ -464,15 +477,16 @@ async function handleFile(event) {
   }
 
   const importedFiles = await Promise.all(
-    Array.from(files).map(async (file) => ({
-      fullName: file.name,
-      content: await file.text(),
-    })),
+      Array.from(files).map(async (file) => ({
+        fullName: file.name,
+        content: await file.text(),
+      })),
   );
 
   emit('import-files', importedFiles);
   event.target.value = '';
 }
+
 
 async function handleFolder(event) {
   const files = event.target.files;
@@ -482,12 +496,12 @@ async function handleFolder(event) {
   }
 
   const importedFiles = await Promise.all(
-    Array.from(files)
-      .filter((file) => file.type.startsWith('text/') || !file.type)
-      .map(async (file) => ({
-        fullName: file.webkitRelativePath || file.name,
-        content: await file.text(),
-      })),
+      Array.from(files)
+          .filter((file) => file.type.startsWith('text/') || !file.type)
+          .map(async (file) => ({
+            fullName: file.webkitRelativePath || file.name,
+            content: await file.text(),
+          })),
   );
 
   emit('import-files', importedFiles);
@@ -496,89 +510,64 @@ async function handleFolder(event) {
 </script>
 
 <template>
-  <div class="dropdown">
-    <button type="button" class="dropdown-toggle" @click="toggle">File</button>
+  <div class="menu-bar">
 
-    <ul v-if="isOpen" class="dropdown-menu">
+    <MenuDropdown
+        label="File"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
       <li><button @click="openFile">Open file</button></li>
       <li><button @click="openFolder">Open folder</button></li>
       <li><button @click="saveFile">Save</button></li>
-      <li><button @click="saveFile">Save As</button></li>
+
       <li
           class="has-submenu"
           @mouseenter="isSubOpen = true"
           @mouseleave="isSubOpen = false"
       >
-        <button type="button">New</button>
+        <button>New</button>
 
         <ul v-if="isSubOpen" class="dropdown-submenu">
-          <li v-for="([key, info]) in fileTypeEntries" :key="key">
-            <button @click="openCreateModal(key)">{{ info.label }}</button>
-          </li>
+          <li><button @click="openCreateModal">Text File</button></li>
+          <li><button @click="openCreateModal">Python File</button></li>
         </ul>
       </li>
-    </ul>
+    </MenuDropdown>
 
-    <div v-if="isCreateModalOpen" class="modal-overlay" @click.self="closeCreateModal">
-      <div class="create-modal">
-        <h3>Create New File</h3>
-        <label for="file-name">File name</label>
-        <input
-            id="file-name"
-            v-model="fileName"
-            type="text"
-            placeholder="main"
-            @keydown.enter.prevent="submitCreateFile"
-        />
+    <MenuDropdown
+        label="Edit"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+      <li><button>Undo</button></li>
+      <li><button>Redo</button></li>
+      <li><button>Copy</button></li>
+      <li><button>Paste</button></li>
+    </MenuDropdown>
 
-        <label for="file-extension">Extension</label>
-        <select v-if="canChooseTypeSeparately" id="file-extension" v-model="selectedExtension">
-          <option
-              v-for="ext in effectiveExtensions"
-              :key="ext"
-              :value="ext"
-          >
-            {{ ext }}
-          </option>
-        </select>
-        <input v-else id="file-extension" :value="selectedExtension" type="text" readonly />
-        <div v-if="currentVariants.length">
-          <label>Template</label>
+    <MenuDropdown
+        label="View"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+      <li><button>Toggle Sidebar</button></li>
+      <li><button>Zoom In</button></li>
+      <li><button>Zoom Out</button></li>
+    </MenuDropdown>
 
-          <select v-model="selectedVariant">
-            <option
-                v-for="([key, variant]) in currentVariants"
-                :key="key"
-                :value="key"
-            >
-              {{ variant.label }}
-            </option>
-          </select>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="ghost-button" @click="closeCreateModal">Cancel</button>
-          <button type="button" class="primary-button" @click="submitCreateFile">Create</button>
-        </div>
-      </div>
-    </div>
-
-    <input
-        type="file"
-        ref="fileInput"
-        multiple
-        style="display:none"
-        @change="handleFile"
-    />
-
-    <input
-        type="file"
-        ref="folderInput"
-        style="display:none"
-        v-bind="folderInputAttrs"
-        @change="handleFolder"
-    />
   </div>
+
+  <div v-if="isCreateModalOpen" class="modal-overlay" @click.self="closeCreateModal">
+    <div class="create-modal">
+      <h3>Create New File</h3>
+      <input v-model="fileName" placeholder="main" />
+      <button @click="closeCreateModal">Close</button>
+    </div>
+  </div>
+
+  <input type="file" ref="fileInput" style="display:none" />
+  <input type="file" ref="folderInput" style="display:none" />
 </template>
 
 <style scoped>

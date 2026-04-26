@@ -121,7 +121,7 @@ function handleNodeClick(node) {
 <template>
   <section class="file-tree-wrapper">
     <header class="file-tree-header">
-      <p>File Tree</p>
+      <p>Commit</p>
       <button type="button" class="collapse-button" @click="emit('close')">-</button>
     </header>
 

@@ -23,12 +23,10 @@ const isPullRequestsOpen = ref(false);
 const leftToolbarWidth = 44;
 const rightPaneWidth = 40;
 
-// Сайдбар открыт, если активна любая из его вкладок (Project, Commit, PRs)
 const isAnyLeftPanelOpen = computed(() =>
   isFileTreeOpen.value || isCommitOpen.value || isPullRequestsOpen.value
 );
 
-// Нижняя панель открыта, если активен Терминал или Git
 const isAnyBottomPanelOpen = computed(() =>
   isTerminalOpen.value || isGitOpen.value
 );
@@ -225,7 +223,6 @@ function togglePullRequests() {
   isPullRequestsOpen.value = target;
 }
 
-// Управление нижней панелью (Git и Терминал теперь делят одно место)
 function toggleTerminal() {
   const target = !isTerminalOpen.value;
   isGitOpen.value = false;
