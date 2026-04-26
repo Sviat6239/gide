@@ -24,35 +24,35 @@ We want to test a hypothesis:
 
 ## What is already implemented
 
-The current prototype includes a basic IDE layout:
+The current prototype includes a functional IDE layout with dynamic panels:
 
-- top menu and dropdown navigation;
-- sidebars (left and right);
-- code area;
-- file tree panel;
-- bottom terminal panel;
-- modular Vue component structure for further growth.
+- **JetBrains-style Sidebar**: A multi-tab left sidebar (Project, Commit, Pull Requests) with exclusive toggle logic (only one panel open at a time).
+- **Dynamic Workspace**: Code editor area with tab support (open, close, switch).
+- **Tool Window Management**: Bottom panel for context-heavy tools like **Terminal** and **Git**, sharing the same space with the ability to toggle between them.
+- **File System Integration**: Rust-powered backend commands to read directory trees and file contents.
+- **Responsive Resizing**: Interactive vertical and horizontal resizers for sidebars and tool windows.
+- **Modern UI Components**: Modular Vue-based structure including Header, Footer, Sidebars, and specialized views.
 
 ## Technology stack
 
 ### Frontend
 
-- **Vue 3**
+- **Vue 3 (Composition API)**
 - **Vite 6**
-- CSS style modules for UI layers
+- Custom CSS for high-fidelity IDE look and feel
 
-### Desktop / Backend shell
+### Desktop / Backend shell (Tauri 2.0)
 
-- **Tauri 2**
 - **Rust 1.94**
-- `serde`, `serde_json`
+- **Native FS Commands**: Optimized directory tree building and file reading.
+- `serde`, `serde_json` for seamless bridge between Rust and Vue.
 
 ## Why Tauri instead of Electron
 
-- smaller final app size;
-- lower memory usage in typical scenarios;
-- native backend performance with Rust;
-- natural integration with system capabilities through the Tauri API.
+- Smaller final app size (no bundled Chromium).
+- Significantly lower memory usage.
+- Native backend performance with Rust for heavy tasks like indexing or FS watching.
+- Natural integration with system capabilities through the Tauri 2.0 API.
 
 ## Quick start
 
@@ -74,12 +74,6 @@ npm install
 npm run tauri dev
 ```
 
-### Build frontend
-
-```bash
-npm run build:web
-```
-
 ### Build desktop application
 
 ```bash
@@ -90,30 +84,29 @@ npm run build
 
 ```text
 gide/
-├── src/                  # Vue frontend
-│   ├── components/       # IDE UI components
-│   ├── styles/           # Interface styles
-│   └── views/            # Screen-level views
-├── src-tauri/            # Tauri + Rust part
-│   ├── src/              # Rust entry points
-│   └── tauri.conf.json   # Desktop app configuration
-└── package.json          # npm scripts and frontend dependencies
+├── src/                  # Vue frontend (composition API)
+│   ├── components/       # UI Components (Editor, Terminal, Git, etc.)
+│   ├── views/            # Main layout orchestration (EditorView.vue)
+│   └── styles/           # Global and component-specific styling
+├── src-tauri/            # Tauri + Rust core
+│   ├── src/              # Rust commands and logic
+│   └── tauri.conf.json   # Desktop app and bundle configuration
+└── package.json          # npm scripts and dependencies
 ```
 
 ## Roadmap
 
-- [ ] Expand menu and command system (command palette / actions)
-- [ ] Connect real filesystem operations
-- [ ] Improve code editor capabilities (highlighting, tabs, state)
-- [ ] Evolve terminal and integration with dev workflow
-- [ ] Add theme settings, UX polish, and keyboard shortcuts
-- [ ] Design an extensibility architecture (plugins/modules)
+- [ ] **Real Terminal**: Integrate Xterm.js for a fully functional terminal emulator.
+- [ ] **Advanced Git**: Stage/Commit UI and interactive history log.
+- [ ] **Editor Enhancements**: Syntax highlighting, code completion, and state persistence.
+- [ ] **Global Command Palette**: Quick access to actions and files (Ctrl+Shift+A / Ctrl+P).
+- [ ] **Plugin System**: Modular architecture for extending IDE functionality.
 
 ## Status
 
 The project is in an active prototyping phase.
 
-Right now, the focus is on building a strong UI/UX foundation to confidently scale toward IDE-level functionality without sacrificing performance.
+Right now, the focus is on building a strong UI/UX foundation and optimizing the Rust-Vue bridge to ensure the IDE feels snappy and responsive.
 
 ---
 
