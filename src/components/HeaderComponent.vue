@@ -8,6 +8,7 @@ const emit = defineEmits(['create-file', 'import-files']);
 
 const activeMenu = ref(null);
 const activeSubmenu = ref(null);
+const isSubOpen = ref(false);
 
 function toggleMenu(menu) {
   activeMenu.value = activeMenu.value === menu ? null : menu;
@@ -373,6 +374,12 @@ const effectiveExtensions = computed(() => {
   return variantExtensions.length ? variantExtensions : typeExtensions;
 });
 
+const canChooseTypeSeparately = computed(() => {
+  const type = currentType.value;
+  if (!type) return false;
+  return fileTemplates[type]?.allowSeparateType ?? false;
+});
+
 watch([selectedVariant, currentType], () => {
   syncSelectedExtension();
 });
@@ -529,8 +536,9 @@ async function handleFolder(event) {
         <button>New</button>
 
         <ul v-if="isSubOpen" class="dropdown-submenu">
-          <li><button @click="openCreateModal">Text File</button></li>
-          <li><button @click="openCreateModal">Python File</button></li>
+          <li v-for="(type, key) in fileTypes" :key="key">
+            <button @click="openCreateModal(key)">{{ type.label }}</button>
+          </li>
         </ul>
       </li>
     </MenuDropdown>
@@ -561,13 +569,39 @@ async function handleFolder(event) {
   <div v-if="isCreateModalOpen" class="modal-overlay" @click.self="closeCreateModal">
     <div class="create-modal">
       <h3>Create New File</h3>
-      <input v-model="fileName" placeholder="main" />
-      <button @click="closeCreateModal">Close</button>
+
+      <div class="form-group">
+        <label>File Name:</label>
+        <input v-model="fileName" placeholder="main" />
+      </div>
+
+      <div v-if="currentVariants.length" class="form-group">
+        <label>Template:</label>
+        <select v-model="selectedVariant">
+          <option v-for="[variantKey, variantData] in currentVariants" :key="variantKey" :value="variantKey">
+            {{ variantData.label }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="canChooseTypeSeparately" class="form-group">
+        <label>Extension:</label>
+        <select v-model="selectedExtension">
+          <option v-for="ext in effectiveExtensions" :key="ext" :value="ext">
+            {{ ext }}
+          </option>
+        </select>
+      </div>
+
+      <div class="modal-buttons">
+        <button @click="submitCreateFile" class="btn-primary">Create</button>
+        <button @click="closeCreateModal" class="btn-secondary">Cancel</button>
+      </div>
     </div>
   </div>
 
-  <input type="file" ref="fileInput" style="display:none" />
-  <input type="file" ref="folderInput" style="display:none" />
+  <input type="file" ref="fileInput" style="display:none" @change="handleFile" />
+  <input type="file" ref="folderInput" style="display:none" v-bind="folderInputAttrs" @change="handleFolder" />
 </template>
 
 <style scoped>
