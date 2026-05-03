@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import MenuDropdown from './MenuDropdown.vue';
 import '../styles/Header.css'
 
-const emit = defineEmits(['create-file', 'import-files']);
+const emit = defineEmits(['create-file', 'import-files', 'toggle-sidebar', 'zoom-in', 'zoom-out', 'update-content', 'paste-content']);
 
 const props = defineProps({
   activeTab: {
@@ -11,6 +11,21 @@ const props = defineProps({
     default: null,
   },
 });
+
+const undoStack = ref([]);
+const redoStack = ref([]);
+const lastSavedContent = ref('');
+
+watch(() => props.activeTab?.content, (newContent) => {
+  if (props.activeTab && newContent !== lastSavedContent.value) {
+    // Сохраняем старое значение в undo стек
+    if (lastSavedContent.value !== '') {
+      undoStack.value.push(lastSavedContent.value);
+      redoStack.value = [];
+    }
+    lastSavedContent.value = newContent;
+  }
+}, { deep: true });
 
 
 const activeMenu = ref(null);
@@ -427,6 +442,90 @@ function refreshTypeState(type) {
   syncSelectedExtension();
 }
 
+function toggleSidebar() {
+  emit('toggle-sidebar');
+  activeMenu.value = null;
+}
+
+function zoomIn() {
+  const root = document.documentElement;
+  const currentZoom = parseFloat(root.style.fontSize) || 16;
+  root.style.fontSize = (currentZoom + 2) + 'px';
+  activeMenu.value = null;
+}
+
+function zoomOut() {
+  const root = document.documentElement;
+  const currentZoom = parseFloat(root.style.fontSize) || 16;
+  if (currentZoom > 10) {
+    root.style.fontSize = (currentZoom - 2) + 'px';
+  }
+  activeMenu.value = null;
+}
+
+async function copyToClipboard() {
+  if (!props.activeTab) {
+    alert('No file selected');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(props.activeTab.content);
+    console.log('Content copied to clipboard');
+    activeMenu.value = null;
+  } catch (error) {
+    console.error('Failed to copy:', error);
+    alert('Failed to copy to clipboard');
+  }
+}
+
+async function pasteFromClipboard() {
+  if (!props.activeTab) {
+    alert('No file selected');
+    return;
+  }
+
+  try {
+    const text = await navigator.clipboard.readText();
+    const newContent = props.activeTab.content + text;
+    emit('update-content', { id: props.activeTab.id, content: newContent });
+    activeMenu.value = null;
+  } catch (error) {
+    console.error('Failed to paste:', error);
+    alert('Failed to paste from clipboard');
+  }
+}
+
+function undo() {
+  if (!props.activeTab || undoStack.value.length === 0) {
+    return;
+  }
+
+  redoStack.value.push(props.activeTab.content);
+
+  const previousContent = undoStack.value.pop();
+
+  emit('update-content', { id: props.activeTab.id, content: previousContent });
+  lastSavedContent.value = previousContent;
+
+  activeMenu.value = null;
+}
+
+function redo() {
+  if (!props.activeTab || redoStack.value.length === 0) {
+    return;
+  }
+
+  undoStack.value.push(props.activeTab.content);
+
+  const nextContent = redoStack.value.pop();
+  
+  emit('update-content', { id: props.activeTab.id, content: nextContent });
+  lastSavedContent.value = nextContent;
+
+  activeMenu.value = null;
+}
+
 function openFile() {
   fileInput.value.click();
   activeMenu.value = null;
@@ -595,10 +694,10 @@ async function handleFolder(event) {
         :activeMenu="activeMenu"
         @toggle="toggleMenu"
     >
-      <li><button>Undo</button></li>
-      <li><button>Redo</button></li>
-      <li><button>Copy</button></li>
-      <li><button>Paste</button></li>
+      <li><button @click="undo">Undo</button></li>
+      <li><button @click="redo">Redo</button></li>
+      <li><button @click="copyToClipboard">Copy</button></li>
+      <li><button @click="pasteFromClipboard">Paste</button></li>
     </MenuDropdown>
 
     <MenuDropdown
@@ -606,9 +705,9 @@ async function handleFolder(event) {
         :activeMenu="activeMenu"
         @toggle="toggleMenu"
     >
-      <li><button>Toggle Sidebar</button></li>
-      <li><button>Zoom In</button></li>
-      <li><button>Zoom Out</button></li>
+      <li><button @click="toggleSidebar">Toggle Sidebar</button></li>
+      <li><button @click="zoomIn">Zoom In</button></li>
+      <li><button @click="zoomOut">Zoom Out</button></li>
     </MenuDropdown>
 
   </div>

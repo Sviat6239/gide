@@ -297,6 +297,8 @@ onBeforeUnmount(() => {
           @create-file="handleCreateFile"
           @import-files="handleImportFiles"
           :active-tab="tabs.find(tab => tab.id === activeTabId) || null"
+          @toggle-sidebar="toggleFileTree"
+          @update-content="updateTabContent"
       />
     </div>
 

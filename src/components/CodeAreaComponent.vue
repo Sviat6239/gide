@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import '../styles/CodeArea.css';
 
 const props = defineProps({
@@ -17,6 +17,8 @@ const emit = defineEmits(['select-tab', 'close-tab', 'update-content']);
 
 const editorRef = ref(null);
 const linesRef = ref(null);
+
+const fileHistories = ref({});
 
 const activeTab = computed(() => props.tabs.find((tab) => tab.id === props.activeTabId) || null);
 
@@ -36,6 +38,24 @@ const lineCount = computed(() => {
   return content ? content.split('\n').length : 1;
 });
 
+watch(() => editorText.value, (newValue) => {
+  if (!activeTab.value) return;
+
+  const tabId = activeTab.value.id;
+  if (!fileHistories.value[tabId]) {
+    fileHistories.value[tabId] = {
+      undo: [],
+      redo: [],
+    };
+  }
+
+  const history = fileHistories.value[tabId];
+  if (activeTab.value.content !== newValue) {
+    history.undo.push(activeTab.value.content);
+    history.redo = [];
+  }
+}, { deep: true });
+
 function syncScroll() {
   if (!editorRef.value || !linesRef.value) {
     return;
@@ -43,6 +63,14 @@ function syncScroll() {
 
   linesRef.value.scrollTop = editorRef.value.scrollTop;
 }
+
+function getHistory(tabId) {
+  return fileHistories.value[tabId] || { undo: [], redo: [] };
+}
+
+defineExpose({
+  getHistory,
+});
 </script>
 <template>
   <div class="code-area">
