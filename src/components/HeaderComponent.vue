@@ -519,7 +519,7 @@ function redo() {
   undoStack.value.push(props.activeTab.content);
 
   const nextContent = redoStack.value.pop();
-  
+
   emit('update-content', { id: props.activeTab.id, content: nextContent });
   lastSavedContent.value = nextContent;
 
@@ -709,6 +709,34 @@ async function handleFolder(event) {
       <li><button @click="zoomIn">Zoom In</button></li>
       <li><button @click="zoomOut">Zoom Out</button></li>
     </MenuDropdown>
+
+    <menu-dropdown
+        label="Build"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+    </menu-dropdown>
+
+    <menu-dropdown
+        label="Run"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+    </menu-dropdown>
+
+    <menu-dropdown
+        label="Git"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+    </menu-dropdown>
+
+    <menu-dropdown
+        label="Help"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+    </menu-dropdown>
 
   </div>
 
