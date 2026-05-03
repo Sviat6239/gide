@@ -3,8 +3,15 @@ import { computed, ref, watch } from 'vue';
 import MenuDropdown from './MenuDropdown.vue';
 import '../styles/Header.css'
 
-
 const emit = defineEmits(['create-file', 'import-files']);
+
+const props = defineProps({
+  activeTab: {
+    type: Object,
+    default: null,
+  },
+});
+
 
 const activeMenu = ref(null);
 const activeSubmenu = ref(null);
@@ -430,7 +437,47 @@ function openFolder() {
   activeMenu.value = null;
 }
 
-function saveFile() {
+async function saveFile() {
+  if (!props.activeTab) {
+    alert('No file selected');
+    return;
+  }
+
+  const fileName = props.activeTab.fullName;
+  const content = props.activeTab.content;
+
+  if (!fileName || fileName.startsWith('untitled')) {
+    alert('Please save file with a specific path first using export or create from existing folder');
+    return;
+  }
+
+  try {
+    if (window.__TAURI__) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('save_file', {
+        filePath: fileName,
+        content: content,
+      });
+      console.log('File saved via Tauri:', fileName);
+      alert('File saved successfully!');
+    } else {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      console.log('File downloaded:', fileName);
+      alert('File downloaded successfully!');
+    }
+  } catch (error) {
+    console.error('Failed to save file:', error);
+    alert('Failed to save file: ' + error);
+  }
 }
 
 function openCreateModal(type = 'txt') {

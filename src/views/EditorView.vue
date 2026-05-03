@@ -293,7 +293,11 @@ onBeforeUnmount(() => {
 <template>
   <div class="editor-shell">
     <div class="header">
-      <HeaderComponent @create-file="handleCreateFile" @import-files="handleImportFiles" />
+      <HeaderComponent
+          @create-file="handleCreateFile"
+          @import-files="handleImportFiles"
+          :active-tab="tabs.find(tab => tab.id === activeTabId) || null"
+      />
     </div>
 
     <div class="main-layout">

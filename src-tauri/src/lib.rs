@@ -80,13 +80,19 @@ fn read_text_file(file_path: String) -> Result<String, String> {
     fs::read_to_string(&file_path).map_err(|error| error.to_string())
 }
 
+#[tauri::command]
+fn save_file(file_path: String, content: String) -> Result<(), String> {
+    fs::write(&file_path, content).map_err(|error| error.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             get_default_root,
             read_directory_tree,
-            read_text_file
+            read_text_file,
+            save_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
