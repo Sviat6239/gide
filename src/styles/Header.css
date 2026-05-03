@@ -157,3 +157,21 @@
     background: #3574f0;
     color: #fff;
 }
+
+
+.btn-primary{
+    margin-right: 2px;
+    border-radius: 6px;
+    border-color: #3574f0;
+    background-color: #4d8dff;
+    color: #f6f6f6;
+
+}
+
+.btn-secondary{
+    margin-left: 2px;
+    border-radius: 6px;
+    border-color: #4b4f57;
+    background-color: #4b4f57;
+    color: #f6f6f6;
+}
