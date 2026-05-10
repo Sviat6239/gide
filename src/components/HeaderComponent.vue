@@ -660,6 +660,15 @@ async function handleFolder(event) {
   emit('import-files', importedFiles);
   event.target.value = '';
 }
+
+async function buildProject(event){
+
+}
+
+async function rebuildProject(event){
+
+}
+
 </script>
 
 <template>
@@ -715,6 +724,8 @@ async function handleFolder(event) {
         :activeMenu="activeMenu"
         @toggle="toggleMenu"
     >
+      <li><button @click="buildProject">Build Project</button></li>
+      <li><button @click="rebuildProject">Rebuild Project</button></li>
     </menu-dropdown>
 
     <menu-dropdown
@@ -722,6 +733,9 @@ async function handleFolder(event) {
         :activeMenu="activeMenu"
         @toggle="toggleMenu"
     >
+      <li><button>Run</button></li>
+      <li><button>Debug</button></li>
+      <li><button>Attach To Process</button></li>
     </menu-dropdown>
 
     <menu-dropdown
@@ -729,6 +743,20 @@ async function handleFolder(event) {
         :activeMenu="activeMenu"
         @toggle="toggleMenu"
     >
+      <li><button>Commit</button></li>
+      <li><button>Push</button></li>
+      <li><button>Update Project</button></li>
+      <li><button>Pull</button></li>
+      <li><button>Fetch</button></li>
+      <li><button>Merge</button></li>
+      <li><button>Rebase</button></li>
+      <li><button>Branches...</button></li>
+      <li><button>New Branch</button></li>
+      <li><button>New Tag</button></li>
+      <li><button>Reset HEAD</button></li>
+      <li><button>New Worktree</button></li>
+      <li><button>Worktrees...</button></li>
+      <li><button>Show Git Log</button></li>
     </menu-dropdown>
 
     <menu-dropdown
@@ -736,6 +764,14 @@ async function handleFolder(event) {
         :activeMenu="activeMenu"
         @toggle="toggleMenu"
     >
+      <li><button>Find Action...</button></li>
+      <li><button>Help</button></li>
+      <li><button>Tip Of The Day</button></li>
+      <li><button>My Productivity</button></li>
+      <li><button>What`s New in G-IDE</button></li>
+      <li><button>Getting Started</button></li>
+      <li><button>Keyboard Shortcuts PDF</button></li>
+      <li><button>Contact Support</button></li>
     </menu-dropdown>
 
   </div>
