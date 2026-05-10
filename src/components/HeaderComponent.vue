@@ -719,6 +719,53 @@ async function rebuildProject(event){
       <li><button @click="zoomOut">Zoom Out</button></li>
     </MenuDropdown>
 
+    <MenuDropdown
+        label="Navigate"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+      <li><button>Go to File...</button></li>
+      <li><button>Go to Class...</button></li>
+      <li><button>Go to Symbol...</button></li>
+      <li><button>Go to Line...</button></li>
+      <li><button>Recent Files</button></li>
+      <li><button>Recent Locations</button></li>
+      <li><button>Last Edit Location</button></li>
+      <li><button>Next Error</button></li>
+    </MenuDropdown>
+
+    <MenuDropdown
+        label="Code"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+
+      <li><button>Comment with Line Comment</button></li>
+      <li><button>Comment with Block Comment</button></li>
+      <li><button>Reformat Code</button></li>
+      <li><button>Optimize Imports</button></li>
+      <li><button>Generate...</button></li>
+      <li><button>Override Methods...</button></li>
+      <li><button>Implement Methods...</button></li>
+      <li><button>Analyze Stack Trace or Log...</button></li>
+    </MenuDropdown>
+
+    <MenuDropdown
+        label="Refactor"
+        :activeMenu="activeMenu"
+        @toggle="toggleMenu"
+    >
+
+      <li><button>Rename...</button></li>
+      <li><button>Extract Method...</button></li>
+      <li><button>Extract Variable...</button></li>
+      <li><button>Extract Constant...</button></li>
+      <li><button>Inline...</button></li>
+      <li><button>Change Signature...</button></li>
+      <li><button>Move...</button></li>
+      <li><button>Copy...</button></li>
+    </MenuDropdown>
+
     <menu-dropdown
         label="Build"
         :activeMenu="activeMenu"
