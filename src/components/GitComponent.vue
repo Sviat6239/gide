@@ -10,7 +10,7 @@ const emit = defineEmits(['close']);
       <p>Git</p>
       <button type="button" class="terminal-close" @click="emit('close')">-</button>
     </div>
-    <textarea name="" id="" cols="30" rows="10" class="terminal-textarea"></textarea>
+    <textarea id="git-input" name="gitInput" cols="30" rows="10" class="terminal-textarea"></textarea>
   </div>
 </template>
 

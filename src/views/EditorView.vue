@@ -3,11 +3,11 @@ import { computed, onBeforeUnmount, ref } from 'vue';
 import CodeAreaComponent from '../components/CodeAreaComponent.vue';
 import TerminalComponent from '../components/TerminalComponent.vue';
 import GitComponent from '../components/GitComponent.vue';
+import TodoComponent from '../components/TodoComponent.vue';
 import HeaderComponent from '../components/HeaderComponent.vue';
 import LeftSideBarComponent from '../components/LeftSideBarComponent.vue';
 import RightSideBarComponent from '../components/RightSideBarComponent.vue';
 import FooterComponent from '../components/FooterComponent.vue';
-import TodoComponent from "../components/TodoComponent.vue";
 
 const tabs = ref([]);
 const activeTabId = ref(null);
@@ -30,7 +30,7 @@ const isAnyLeftPanelOpen = computed(() =>
 );
 
 const isAnyBottomPanelOpen = computed(() =>
-  isTerminalOpen.value || isGitOpen.value
+  isTerminalOpen.value || isGitOpen.value || isTodoOpen.value
 );
 
 const effectiveLeftPaneWidth = computed(() => (isAnyLeftPanelOpen.value ? leftPaneWidth.value : leftToolbarWidth));
@@ -196,9 +196,7 @@ function handleOpenFileFromTree(payload) {
     return;
   }
 
-  if (payload.content !== undefined) {
-    openOrActivateTab(payload.fullName, payload.content ?? '');
-  }
+  openOrActivateTab(payload.fullName, payload.content ?? '');
 }
 
 function closeAllLeftPanels() {
@@ -228,19 +226,22 @@ function togglePullRequests() {
 
 function toggleTodo() {
   const target = !isTodoOpen.value;
-  isTodoOpen.value = false;
+  isTerminalOpen.value = false;
+  isGitOpen.value = false;
   isTodoOpen.value = target;
 }
 
 function toggleTerminal() {
   const target = !isTerminalOpen.value;
   isGitOpen.value = false;
+  isTodoOpen.value = false;
   isTerminalOpen.value = target;
 }
 
 function toggleGit() {
   const target = !isGitOpen.value;
   isTerminalOpen.value = false;
+  isTodoOpen.value = false;
   isGitOpen.value = target;
 }
 
@@ -323,7 +324,7 @@ onBeforeUnmount(() => {
               :is-git-open="isGitOpen"
               :is-commit-open="isCommitOpen"
               :is-pull-requests-open="isPullRequestsOpen"
-              :is-Todo-Open="isTodoOpen"
+              :is-todo-open="isTodoOpen"
               @toggle-file-tree="toggleFileTree"
               @toggle-terminal="toggleTerminal"
               @toggle-git="toggleGit"
@@ -364,6 +365,7 @@ onBeforeUnmount(() => {
           >
             <TerminalComponent v-if="isTerminalOpen" @close="toggleTerminal" />
             <GitComponent v-if="isGitOpen" @close="toggleGit" />
+            <TodoComponent v-if="isTodoOpen" @close="toggleTodo" />
           </div>
         </section>
 
@@ -438,13 +440,6 @@ onBeforeUnmount(() => {
   border-left: none;
 }
 
-.center-content {
-  flex: 1;
-  display: flex;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-}
 
 .editor-view {
   flex: 1;

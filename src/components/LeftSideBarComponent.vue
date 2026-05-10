@@ -2,7 +2,6 @@
 import FileThreeComponent from './FileThreeComponent.vue';
 import PullRequestsComponent from "./PullRequestsComponent.vue";
 import CommitComponent from "./CommitComponent.vue";
-import TodoComponent from "./TodoComponent.vue";
 import '../styles/LeftSideBar.css';
 
 const props = defineProps({
@@ -172,15 +171,6 @@ const emit = defineEmits([
           :style="{ height: '100%' }">
 
         <PullRequestsComponent @close="emit('toggle-pull-requests')" />
-      </div>
-
-      <!-- TODO -->
-      <div
-          v-if="props.isTodoOpen"
-          class="left-content"
-          :style="{ height: '100%' }">
-
-        <TodoComponent @close="emit('toggle-todo')" />
       </div>
 
     </div>

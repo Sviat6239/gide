@@ -7,10 +7,10 @@ const emit = defineEmits(['close']);
 <template>
   <div class="terminal-area">
     <div class="terminal-header">
-      <p>Git</p>
+      <p>TODO</p>
       <button type="button" class="terminal-close" @click="emit('close')">-</button>
     </div>
-    <textarea name="" id="" cols="30" rows="10" class="terminal-textarea"></textarea>
+    <textarea id="todo-input" name="todoInput" cols="30" rows="10" class="terminal-textarea"></textarea>
   </div>
 </template>
 
