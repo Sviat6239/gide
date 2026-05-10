@@ -7,6 +7,7 @@ import HeaderComponent from '../components/HeaderComponent.vue';
 import LeftSideBarComponent from '../components/LeftSideBarComponent.vue';
 import RightSideBarComponent from '../components/RightSideBarComponent.vue';
 import FooterComponent from '../components/FooterComponent.vue';
+import TodoComponent from "../components/TodoComponent.vue";
 
 const tabs = ref([]);
 const activeTabId = ref(null);
@@ -14,6 +15,7 @@ let nextTabId = 1;
 const leftPaneWidth = ref(260);
 const terminalHeight = ref(240);
 
+const isTodoOpen = ref(false);
 const isFileTreeOpen = ref(true);
 const isTerminalOpen = ref(false);
 const isGitOpen = ref(false);
@@ -203,6 +205,7 @@ function closeAllLeftPanels() {
   isFileTreeOpen.value = false;
   isCommitOpen.value = false;
   isPullRequestsOpen.value = false;
+  isTodoOpen.value = false;
 }
 
 function toggleFileTree() {
@@ -221,6 +224,12 @@ function togglePullRequests() {
   const target = !isPullRequestsOpen.value;
   closeAllLeftPanels();
   isPullRequestsOpen.value = target;
+}
+
+function toggleTodo() {
+  const target = !isTodoOpen.value;
+  isTodoOpen.value = false;
+  isTodoOpen.value = target;
 }
 
 function toggleTerminal() {
@@ -314,10 +323,12 @@ onBeforeUnmount(() => {
               :is-git-open="isGitOpen"
               :is-commit-open="isCommitOpen"
               :is-pull-requests-open="isPullRequestsOpen"
+              :is-Todo-Open="isTodoOpen"
               @toggle-file-tree="toggleFileTree"
               @toggle-terminal="toggleTerminal"
               @toggle-git="toggleGit"
               @toggle-commit="toggleCommit"
+              @toggle-todo="toggleTodo"
               @toggle-pull-requests="togglePullRequests"
               @open-file="handleOpenFileFromTree"
           />

@@ -2,6 +2,7 @@
 import FileThreeComponent from './FileThreeComponent.vue';
 import PullRequestsComponent from "./PullRequestsComponent.vue";
 import CommitComponent from "./CommitComponent.vue";
+import TodoComponent from "./TodoComponent.vue";
 import '../styles/LeftSideBar.css';
 
 const props = defineProps({
@@ -9,6 +10,7 @@ const props = defineProps({
 
   isFileTreeOpen: { type: Boolean, default: true },
   isTerminalOpen: { type: Boolean, default: false },
+  isTodoOpen: {type: Boolean, default: false},
 
   isGitOpen: { type: Boolean, default: false },
   isCommitOpen: { type: Boolean, default: false },
@@ -25,6 +27,7 @@ const emit = defineEmits([
   'toggle-git',
   'toggle-commit',
   'toggle-pull-requests',
+  'toggle-todo',
 ]);
 </script>
 
@@ -85,6 +88,20 @@ const emit = defineEmits([
 
       <!-- BOTTOM SECTION -->
       <div class="toolbar-bottom">
+
+        <!-- TODO -->
+        <button
+            class="tool-button"
+            :class="{ active: props.isTodoOpen }"
+            title="TODO"
+            @click="emit('toggle-todo')">
+
+          <svg viewBox="0 0 24 24" class="tool-icon">
+            <path d="M4 5h16v14H4z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M8 10l2 2-2 2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 14h4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </button>
 
         <!-- TERMINAL -->
         <button
@@ -155,6 +172,15 @@ const emit = defineEmits([
           :style="{ height: '100%' }">
 
         <PullRequestsComponent @close="emit('toggle-pull-requests')" />
+      </div>
+
+      <!-- TODO -->
+      <div
+          v-if="props.isTodoOpen"
+          class="left-content"
+          :style="{ height: '100%' }">
+
+        <TodoComponent @close="emit('toggle-todo')" />
       </div>
 
     </div>
