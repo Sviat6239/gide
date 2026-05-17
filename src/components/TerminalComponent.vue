@@ -10,7 +10,7 @@ const emit = defineEmits(['close']);
       <p>Terminal</p>
       <button type="button" class="terminal-close" @click="emit('close')">-</button>
     </div>
-    <textarea id="terminal-input" name="terminalInput" cols="30" rows="10" class="terminal-textarea"></textarea>
+    <textarea id="terminal-input" name="terminalInput" cols="30" rows="10" class="terminal-textarea">></textarea>
   </div>
 </template>
 

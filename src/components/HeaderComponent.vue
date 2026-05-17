@@ -3,7 +3,16 @@ import { computed, ref, watch } from 'vue';
 import MenuDropdown from './MenuDropdown.vue';
 import '../styles/Header.css'
 
-const emit = defineEmits(['create-file', 'import-files', 'toggle-sidebar', 'zoom-in', 'zoom-out', 'update-content', 'paste-content']);
+const emit = defineEmits([
+  'create-file',
+  'create-folder',
+  'import-files',
+  'toggle-sidebar',
+  'zoom-in',
+  'zoom-out',
+  'update-content',
+  'paste-content'
+]);
 
 const props = defineProps({
   activeTab: {
@@ -18,7 +27,6 @@ const lastSavedContent = ref('');
 
 watch(() => props.activeTab?.content, (newContent) => {
   if (props.activeTab && newContent !== lastSavedContent.value) {
-    // Сохраняем старое значение в undo стек
     if (lastSavedContent.value !== '') {
       undoStack.value.push(lastSavedContent.value);
       redoStack.value = [];
@@ -45,6 +53,8 @@ function closeSubmenu() {
 }
 
 const isCreateModalOpen = ref(false);
+const isCreateFolderModalOpen = ref(false);
+const folderName = ref('');
 
 
 const fileInput = ref(null);
@@ -163,17 +173,17 @@ if __name__ == "__main__":
         label: 'HTML page',
         extensions: ['.html'],
         template: `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
-</head>
-<body>
+                  <html lang="en">
+                  <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <title>Document</title>
+                  </head>
+                  <body>
 
-</body>
-</html>
-`,
+                  </body>
+                  </html>
+                  `,
       },
     },
   },
@@ -184,18 +194,18 @@ if __name__ == "__main__":
         label: 'CSS stylesheet',
         extensions: ['.css'],
         template: `:root {
-  --primary: #4f46e5;
-}
+                    --primary: #4f46e5;
+                  }
 
-* {
-  box-sizing: border-box;
-}
+                  * {
+                    box-sizing: border-box;
+                  }
 
-body {
-  margin: 0;
-  font-family: sans-serif;
-}
-`,
+                  body {
+                    margin: 0;
+                    font-family: sans-serif;
+                  }
+                  `,
       },
     },
   },
@@ -310,7 +320,25 @@ int main() {
 
       rasm: {
         label: 'RASM',
-        template: `; RASM template
+        template: `arch x86;
+format elf64;
+
+declare number dw = 84;
+declare msg1 char[] = "Grether than 150";
+declare msg2 char[] = "Less than 150";
+
+entry _start;
+# simple comment
+
+_start:
+    mov rax, 84;
+    add rax, number;
+    if(rax >= 150){
+        print msg1;
+    } else {
+        print msg2;
+    }
+    print rax;
 `,
       },
     }

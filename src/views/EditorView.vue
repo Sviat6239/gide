@@ -10,6 +10,9 @@ import RightSideBarComponent from '../components/RightSideBarComponent.vue';
 import FooterComponent from '../components/FooterComponent.vue';
 
 const tabs = ref([]);
+const projectFiles = ref([
+]);
+
 const activeTabId = ref(null);
 let nextTabId = 1;
 const leftPaneWidth = ref(260);
@@ -76,6 +79,29 @@ function makeUniqueName(baseName, extension) {
   return candidate;
 }
 
+function upsertProjectFile(fullName, content) {
+  const normalizedFullName = String(fullName).replace(/\\/g, '/');
+  const existingFile = projectFiles.value.find(
+    (file) => String(file.fullName).replace(/\\/g, '/') === normalizedFullName,
+  );
+
+  if (existingFile) {
+    existingFile.content = content;
+    return;
+  }
+
+  projectFiles.value.push({ fullName, content });
+}
+
+function getProjectFileContent(fullName) {
+  const normalizedFullName = String(fullName).replace(/\\/g, '/');
+  const file = projectFiles.value.find(
+    (item) => String(item.fullName).replace(/\\/g, '/') === normalizedFullName,
+  );
+
+  return file?.content ?? '';
+}
+
 function createTab({ baseName, extension = '', content = '', fullName: explicitFullName = null }) {
   const fullName = explicitFullName ?? makeUniqueName(baseName, extension);
   const parts = splitFileName(fullName);
@@ -97,7 +123,9 @@ function openOrActivateTab(fullName, content) {
   const existingTab = tabs.value.find((tab) => tab.fullName === fullName);
 
   if (existingTab) {
-    existingTab.content = content;
+    if (content !== undefined && content !== null) {
+      existingTab.content = content;
+    }
     activeTabId.value = existingTab.id;
     return;
   }
@@ -119,24 +147,31 @@ function handleCreateFile(payload) {
   }
 
   if (payload.extension) {
+    const fullName = makeUniqueName(rawName, payload.extension);
+    upsertProjectFile(fullName, payload.content ?? '');
     createTab({
       baseName: rawName,
       extension: payload.extension,
       content: payload.content ?? '',
+      fullName,
     });
     return;
   }
 
   const parts = splitFileName(rawName);
+  const fullName = makeUniqueName(parts.name || rawName, parts.extension);
+  upsertProjectFile(fullName, payload.content ?? '');
   createTab({
     baseName: parts.name || rawName,
     extension: parts.extension,
     content: payload.content ?? '',
+    fullName,
   });
 }
 
 function handleImportFiles(importedFiles) {
   importedFiles.forEach((item) => {
+    upsertProjectFile(item.fullName, item.content);
     const parts = splitFileName(item.fullName);
     createTab({
       baseName: parts.name,
@@ -181,6 +216,7 @@ function updateTabContent(payload) {
   }
 
   tab.content = payload.content;
+  upsertProjectFile(tab.fullName, payload.content);
 }
 
 function handleOpenFileFromTree(payload) {
@@ -196,7 +232,7 @@ function handleOpenFileFromTree(payload) {
     return;
   }
 
-  openOrActivateTab(payload.fullName, payload.content ?? '');
+  openOrActivateTab(payload.fullName, getProjectFileContent(payload.fullName));
 }
 
 function closeAllLeftPanels() {
@@ -318,7 +354,7 @@ onBeforeUnmount(() => {
         <!-- LEFT -->
         <aside class="left-sidebar" :style="{ width: `${effectiveLeftPaneWidth}px` }">
           <LeftSideBarComponent
-              :files="tabs"
+              :files="projectFiles"
               :is-file-tree-open="isFileTreeOpen"
               :is-terminal-open="isTerminalOpen"
               :is-git-open="isGitOpen"
