@@ -118,7 +118,6 @@ const activeTasks = computed(() => totalTasks.value - doneTasks.value);
   gap: 6px;
   padding: 10px 12px;
   border: 1px solid rgba(148, 163, 184, 0.45);
-  border-radius: 8px;
   background: rgba(255, 255, 255, 0.02);
 }
 
@@ -144,7 +143,6 @@ const activeTasks = computed(() => totalTasks.value - doneTasks.value);
 .todo-section {
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.45);
-  border-radius: 8px;
   background: rgba(255, 255, 255, 0.02);
 }
 
@@ -164,7 +162,6 @@ const activeTasks = computed(() => totalTasks.value - doneTasks.value);
 .todo-section-dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
   background-color: #64748b;
 }
 
@@ -181,7 +178,6 @@ const activeTasks = computed(() => totalTasks.value - doneTasks.value);
 
 .todo-item {
   padding: 10px 12px;
-  border-radius: 8px;
   border: 1px solid rgba(148, 163, 184, 0.35);
   background: rgba(255, 255, 255, 0.03);
 }
@@ -208,7 +204,6 @@ const activeTasks = computed(() => totalTasks.value - doneTasks.value);
 .todo-item-state {
   flex-shrink: 0;
   padding: 2px 8px;
-  border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.45);
   font-size: 11px;
   text-transform: capitalize;
